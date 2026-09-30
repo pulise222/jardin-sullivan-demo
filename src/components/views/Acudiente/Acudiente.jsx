@@ -1,21 +1,24 @@
 // src/components/views/Acudiente/Acudiente.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { logoutUser } from '../../../features/user/userSlice'
+import { logoutUser } from '../../../features/user/userSlice';
+import { useMisEstudiantesQuery } from '../../../features/students/studentApi';
 import Logo from '../../common/Logo';
 
 // Armazón compartido de los paneles: menú lateral de vidrio que en celular se abre con un botón
 import '../../../styles/panel.css';
 import './css/Acudiente.css';
-import InfoEstudiante from './InfoEstudiante';
+import MisHijos from './MisHijos';
+import Boletin from './Boletin';
 import EventosAcudiente from './EventosAcudiente';
 import PerfilAcudiente from './PerfilAcudiente';
 
-// Secciones del panel (ícono = clase de Font Awesome)
+// Secciones del panel (icon = clase de Font Awesome)
 const SECTIONS = [
-  { id: 'info', label: 'Mis hijos', icon: 'fa-children', title: 'Información del estudiante', subtitle: 'Datos, notas y actividades de tus hijos.' },
+  { id: 'hijos', label: 'Mis hijos', icon: 'fa-children', title: 'Mis hijos', subtitle: 'Sus datos y las actividades que hacen en el jardín.' },
+  { id: 'boletin', label: 'Boletín', icon: 'fa-file-lines', title: 'Boletín', subtitle: 'Cómo le va a tu hijo en cada trimestre.' },
   { id: 'eventos', label: 'Eventos', icon: 'fa-calendar-days', title: 'Eventos', subtitle: 'Lo que viene en el jardín.' },
   { id: 'perfil', label: 'Mi perfil', icon: 'fa-user', title: 'Mi perfil', subtitle: 'Tus datos personales y de acceso.' },
 ];
@@ -23,26 +26,24 @@ const SECTIONS = [
 const Acudiente = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   // Persona logueada (acudiente)
   const persona = useSelector((s) => s.user.persona) || {};
   const nombre = persona.nombre || 'Acudiente';
 
-  // Sección activa y estado del menú en celular
-  const [view, setView] = useState('info');
+  // Los hijos se piden UNA vez aquí y se comparten con las vistas (Mis hijos y Boletín)
+  const { data: hijos = [], isLoading: cargandoHijos, isError: errorHijos } = useMisEstudiantesQuery();
+
+  // Sección activa, hijo elegido y estado del menú en celular
+  const [view, setView] = useState('hijos');
+  const [hijoId, setHijoId] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const renderContent = () => {
-    switch (view) {
-      case 'info':
-        return <InfoEstudiante />;
-      case 'eventos':
-        return <EventosAcudiente />;
-      case 'perfil':
-        return <PerfilAcudiente />;
-      default:
-        return null;
-    }
-  };
+  // Al llegar la lista, se elige el primer hijo (si el elegido ya no existe, también se reemplaza)
+  useEffect(() => {
+    if (hijos.length && !hijos.some((h) => h.id === hijoId)) setHijoId(hijos[0].id);
+  }, [hijos, hijoId]);
+  const hijo = hijos.find((h) => h.id === hijoId) || null;
 
   const logout = () => {
     dispatch(logoutUser());
@@ -52,6 +53,24 @@ const Acudiente = () => {
   const choose = (id) => {
     setView(id);
     setMenuOpen(false);
+  };
+
+  // Datos que comparten las vistas que trabajan con un hijo
+  const contexto = { hijos, hijo, setHijoId, cargando: cargandoHijos, error: errorHijos };
+
+  const renderContent = () => {
+    switch (view) {
+      case 'hijos':
+        return <MisHijos {...contexto} irABoletin={() => choose('boletin')} />;
+      case 'boletin':
+        return <Boletin {...contexto} />;
+      case 'eventos':
+        return <EventosAcudiente />;
+      case 'perfil':
+        return <PerfilAcudiente />;
+      default:
+        return null;
+    }
   };
 
   const info = SECTIONS.find((s) => s.id === view);
@@ -97,7 +116,15 @@ const Acudiente = () => {
       </aside>
       <div className="pn-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" />
 
-      <Toaster position="top-right" toastOptions={{ duration: 3500, style: { fontFamily: 'inherit', fontSize: '1.4rem', fontWeight: 600, borderRadius: '1.2rem' } }} />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: { fontFamily: 'inherit', fontSize: '1.4rem', fontWeight: 600, borderRadius: '1.2rem', padding: '1.2rem 1.6rem', color: '#0f2447' },
+          success: { iconTheme: { primary: '#2fb5a3', secondary: '#fff' } },
+          error: { iconTheme: { primary: '#f26b4f', secondary: '#fff' } },
+        }}
+      />
 
       <main className="pn-main">
         <header className="pn-header">
@@ -110,8 +137,8 @@ const Acudiente = () => {
           </div>
         </header>
 
-        {/* acu-panel conserva los estilos propios de las pantallas internas (tarjetas, tablas, pestañas) */}
-        <div key={view} className="acu-panel pn-fade">{renderContent()}</div>
+        {/* key={view}: al cambiar de sección se repite la animación de entrada */}
+        <div key={view} className="pn-fade">{renderContent()}</div>
       </main>
     </div>
   );

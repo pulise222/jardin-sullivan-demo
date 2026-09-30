@@ -14,7 +14,6 @@ import ResetPasswordConfirm from '../components/views/Auth/ResetPasswordConfirm'
 import ResetPasswordRequest from '../components/views/Auth/ResetPasswordRequest'
 import ImportEstudiantes from '../components/views/Admin/ImportEstudiantes'
 import Acudiente from '../components/views/Acudiente/Acudiente'
-import EstudianteDetalle from '../components/views/Acudiente/EstudianteDetalle'
 
 /*
   ScrollToTop: cada vez que cambia la RUTA (por ejemplo de "/" a "/matricula") vuelve arriba.
@@ -66,12 +65,9 @@ const index = () => {
             </RequireAuth>
           }
         />
-        <Route path="/acudiente/estudiante/:id" element={
-          <RequireAuth>
-            <EstudianteDetalle/> 
-          </RequireAuth>
-        }/> 
-        
+        {/* La antigua página de detalle de un estudiante ahora vive dentro del panel (Mis hijos) */}
+        <Route path="/acudiente/estudiante/:id" element={<Navigate to="/acudiente" replace />} />
+
         <Route path='/profesor' element={
           <RequireAuth>
             <Profe/>

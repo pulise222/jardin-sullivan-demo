@@ -50,7 +50,7 @@ const ResetPasswordRequest = () => {
         )}
 
         <div className="rpw-footer">
-          <a href="/login">Iniciar sesión</a> con tus credenciales
+          <a href={`${import.meta.env.BASE_URL}login`}>Iniciar sesión</a> con tus credenciales
         </div>
       </div>
     </div>

@@ -20,6 +20,15 @@ En la pantalla de login hay un botón **«Cuentas de prueba»** que las muestra.
 | Profesor | `profesor` |
 | Acudiente | `acudiente` |
 
+## Qué puedes recorrer
+
+- **Administrador** (`admin`): estudiantes, personas, materias, asignaciones profesor-curso-materia y eventos, con crear, editar y eliminar.
+- **Profesor** (`profesor`): sus cursos, asistencia, planilla de evaluación por materia y trimestre, actividades y perfil.
+- **Acudiente** (`acudiente`): sus tres hijos, las actividades de cada uno (con evidencias), el **boletín por trimestre** con resumen del año, eventos y perfil.
+
+A los niños no se les califica con números sino con tres niveles: **Deficiente, Aceptable y Sobresaliente**.
+El promedio también es un nivel (la media de los códigos 1, 2 y 3 redondeada al más cercano).
+
 ## ¿Cómo funciona sin backend?
 
 El front usa **RTK Query** para hablar con la API. En el proyecto real, esa capa envía peticiones HTTP a Django.

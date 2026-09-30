@@ -14,7 +14,7 @@
 */
 import { seedDb, DEMO_PASSWORD } from './mockData';
 
-const KEY = 'sullivan_demo_db_v1';
+const KEY = 'sullivan_demo_db_v2';
 
 /* ---------- "Base de datos" en memoria + persistencia ---------- */
 let db;
@@ -47,6 +47,20 @@ export const restablecerDemo = () => {
 };
 
 const nextId = (tabla) => db.next[tabla]++;
+
+/* ---------- Escala de evaluación cualitativa ---------- */
+// 1 = Deficiente · 2 = Aceptable · 3 = Sobresaliente. El promedio es la media de los códigos,
+// redondeada al nivel más cercano (2.5 sube a 3), ignorando lo que aún no se evaluó.
+const NIVELES = { 1: 'Deficiente', 2: 'Aceptable', 3: 'Sobresaliente' };
+const SIN_EVALUAR = 'Sin evaluar';
+const etiqueta = (c) => NIVELES[Number(c)] || SIN_EVALUAR;
+const promedioNiveles = (codigos) => {
+  const validos = codigos.map(Number).filter((c) => c >= 1 && c <= 3);
+  if (!validos.length) return [null, null];
+  const media = validos.reduce((a, b) => a + b, 0) / validos.length;
+  return [Math.round(media * 10) / 10, Math.round(media)];
+};
+
 
 /* ---------- Ayudas ---------- */
 const ok = (data, status = 200) => ({ data, meta: { status } });
@@ -366,28 +380,39 @@ ruta('POST', 'clases/asistencias/cpm/(\\d+)/upsert', ({ m, body }) => {
   return ok({ id: 1, created: !reg });
 });
 
-/* --- Actividades, entregas y notas --- */
-// Un profesor solo ve las actividades de SUS asignaciones en ese curso
-const actividadesDeCurso = (cursoId) => {
+/* --- Actividades, evaluaciones y boletín --- */
+// Un profesor solo ve las actividades de SUS asignaciones. Filtros (igual que el backend real):
+//   ?cpm=ID -> solo esa asignación (curso + materia) · ?todas=1 -> todas las materias · ?periodo=N -> un trimestre
+const actividadesFiltradas = (cursoId, query) => {
   const yo = usuarioActual();
-  return db.actividades.filter((a) => {
-    if (a.curso !== cursoId) return false;
-    const cpm = db.cpms.find((c) => c.id === a.cpm);
-    return !yo || yo.usuario.rol !== 'Profesor' || cpm?.persona === yo.id;
-  });
+  let lista = db.actividades.filter((a) => a.curso === cursoId);
+  const cpm = Number(query.get('cpm'));
+  if (cpm) lista = lista.filter((a) => a.cpm === cpm);
+  else if (query.get('todas') !== '1' && yo?.usuario.rol === 'Profesor') {
+    lista = lista.filter((a) => db.cpms.find((c) => c.id === a.cpm)?.persona === yo.id);
+  }
+  const numero = Number(query.get('periodo'));
+  if (numero) {
+    const p = db.periodos.find((x) => x.numero === numero);
+    lista = p ? lista.filter((a) => a.fecha >= p.fecha_inicio && a.fecha <= p.fecha_fin) : [];
+  }
+  return lista;
 };
 const actividadPlana = (a) => ({ id: a.id, titulo: a.titulo, descripcion: a.descripcion, fecha: a.fecha, fecha_entrega: a.fecha_entrega, asignada_por: a.cpm });
 const entregaPlana = (ae) => {
   const e = db.estudiantes.find((x) => x.id === ae.estudiante);
-  return { id: ae.id, estudiante: ae.estudiante, estudiante_nombre: `${e?.nombre} ${e?.apellido}`, entregado_en: ae.entregado_en, calificacion: ae.calificacion, entregable_url: ae.entregable_url };
+  return { id: ae.id, estudiante: ae.estudiante, estudiante_nombre: `${e?.nombre} ${e?.apellido}`, entregado_en: ae.entregado_en, calificacion: ae.calificacion, nivel: etiqueta(ae.calificacion), entregable_url: ae.entregable_url };
 };
 
-ruta('GET', 'actividades/curso/(\\d+)', ({ m }) => ok(actividadesDeCurso(Number(m[1])).map(actividadPlana)));
+ruta('GET', 'actividades/curso/(\\d+)', ({ m, query }) =>
+  ok(actividadesFiltradas(Number(m[1]), query).sort((a, b) => b.fecha.localeCompare(a.fecha)).map(actividadPlana))
+);
 ruta('POST', 'actividades/curso/(\\d+)/crear', ({ m, body }) => {
   const curso = Number(m[1]);
-  const a = { id: nextId('actividad'), titulo: body.titulo, descripcion: body.descripcion, fecha: body.fecha, fecha_entrega: body.fecha_entrega || null, cpm: Number(body.cpm_id), curso };
+  const periodo = db.periodos.find((p) => body.fecha >= p.fecha_inicio && body.fecha <= p.fecha_fin);
+  const a = { id: nextId('actividad'), titulo: body.titulo, descripcion: body.descripcion, fecha: body.fecha, fecha_entrega: body.fecha_entrega || null, cpm: Number(body.cpm_id), curso, periodo: periodo?.numero };
   db.actividades.push(a);
-  // Cada estudiante del curso recibe su "entrega" pendiente, como hace el backend real
+  // Cada estudiante del curso recibe su fila de evaluación vacía, como hace el backend real
   db.estudiantes.filter((e) => e.curso === curso).forEach((e) =>
     db.entregas.push({ id: nextId('entrega'), actividad: a.id, estudiante: e.id, entregado_en: null, calificacion: null, entregable_url: null })
   );
@@ -418,46 +443,68 @@ ruta('GET', 'actividades/actividad/(\\d+)/entregas', ({ m, query }) => {
 ruta('PATCH', 'actividades/entrega/(\\d+)', ({ m, body }) => {
   const ae = db.entregas.find((x) => x.id === Number(m[1]));
   if (!ae) return fail(404, 'No encontrada.');
+  if ('calificacion' in body && body.calificacion != null && ![1, 2, 3].includes(Number(body.calificacion))) {
+    return { error: { status: 400, data: { calificacion: ['La evaluación debe ser 1 (Deficiente), 2 (Aceptable) o 3 (Sobresaliente).'] } } };
+  }
   Object.assign(ae, body);
+  // Evaluar cuenta como "hecha": si aún no tenía fecha de entrega se la ponemos
+  if (body.calificacion != null && !ae.entregado_en) ae.entregado_en = new Date().toISOString();
   guardar();
   return ok(entregaPlana(ae));
 });
 ruta('POST', 'actividades/entrega/(\\d+)/archivo', ({ m }) => {
   const ae = db.entregas.find((x) => x.id === Number(m[1]));
-  if (ae) ae.entregado_en = new Date().toISOString();
+  if (ae) ae.entregado_en = ae.entregado_en || new Date().toISOString();
   guardar();
   return ok(ae ? entregaPlana(ae) : null);
 });
-ruta('GET', 'actividades/curso/(\\d+)/matriz', ({ m }) => {
+// Planilla del profesor: actividades × estudiantes, con el promedio cualitativo de cada niño
+ruta('GET', 'actividades/curso/(\\d+)/matriz', ({ m, query }) => {
   const curso = Number(m[1]);
-  const acts = actividadesDeCurso(curso);
-  const ests = db.estudiantes.filter((e) => e.curso === curso);
+  const acts = actividadesFiltradas(curso, query).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const ests = db.estudiantes.filter((e) => e.curso === curso).sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre));
   const celdas = [];
+  const codigos = {};
   acts.forEach((a) =>
     ests.forEach((e) => {
       const ae = db.entregas.find((x) => x.actividad === a.id && x.estudiante === e.id);
-      if (ae) celdas.push({ actividad_id: a.id, estudiante_id: e.id, actividad_estudiante_id: ae.id, calificacion: ae.calificacion != null ? String(ae.calificacion) : null, entregado_en: ae.entregado_en, entregable_url: null });
+      if (!ae) return;
+      (codigos[e.id] ||= []).push(ae.calificacion);
+      celdas.push({ actividad_id: a.id, estudiante_id: e.id, actividad_estudiante_id: ae.id, calificacion: ae.calificacion ?? null, entregado_en: ae.entregado_en, entregable_url: null });
     })
   );
-  return ok({ actividades: acts.map(actividadPlana), estudiantes: ests.map((e) => ({ id: e.id, nombre: e.nombre, apellido: e.apellido })), celdas });
+  return ok({
+    actividades: acts.map((a) => ({ id: a.id, titulo: a.titulo, fecha: a.fecha })),
+    estudiantes: ests.map((e) => {
+      const [media, nivel] = promedioNiveles(codigos[e.id] || []);
+      return { id: e.id, nombre: e.nombre, apellido: e.apellido, promedio: media, nivel: NIVELES[nivel] || SIN_EVALUAR, nivel_codigo: nivel };
+    }),
+    celdas,
+  });
 });
+// Actividades de un hijo (portal del acudiente)
 ruta('GET', 'actividades/estudiante/(\\d+)', ({ m, query }) => {
   const estado = query.get('estado') || 'todas';
   let lista = db.entregas.filter((e) => e.estudiante === Number(m[1]));
   if (estado === 'pendientes') lista = lista.filter((e) => !e.entregado_en);
   if (estado === 'entregadas') lista = lista.filter((e) => e.entregado_en);
-  return ok(lista.map((ae) => {
-    const a = db.actividades.find((x) => x.id === ae.actividad) || {};
-    return { id: ae.id, actividad_estudiante_id: ae.id, actividad_id: a.id, titulo: a.titulo, descripcion: a.descripcion, fecha: a.fecha, fecha_entrega: a.fecha_entrega, entregado_en: ae.entregado_en, calificacion: ae.calificacion != null ? String(ae.calificacion) : null, entregable_url: null, download_url: null, mime: null, filename: null };
-  }));
+  return ok(
+    lista
+      .map((ae) => ({ ae, a: db.actividades.find((x) => x.id === ae.actividad) || {} }))
+      .sort((x, y) => (y.a.fecha || '').localeCompare(x.a.fecha || ''))
+      .map(({ ae, a }) => ({
+        id: ae.id, actividad_estudiante_id: ae.id, actividad_id: a.id,
+        materia: materiaMini(db.cpms.find((c) => c.id === a.cpm)?.materia)?.nombre || null,
+        titulo: a.titulo, descripcion: a.descripcion, fecha: a.fecha, fecha_entrega: a.fecha_entrega,
+        entregado_en: ae.entregado_en, calificacion: ae.calificacion ?? null, nivel: etiqueta(ae.calificacion),
+        entregable_url: null, download_url: null, mime: null, filename: null,
+      }))
+  );
 });
 
 /* --- Académico: contexto y boletín --- */
-ruta('GET', 'academico/contexto', () => {
-  const hoy = new Date();
-  const actual = Math.floor(hoy.getMonth() / 3) + 1;
-  return ok({ anio_actual: hoy.getFullYear(), periodo_actual: actual, periodos_disponibles: Array.from({ length: actual - 1 }, (_, i) => i + 1) });
-});
+// En la demo el trimestre "en curso" es siempre el 3, así la demo se ve completa sin importar la fecha
+ruta('GET', 'academico/contexto', () => ok({ anio_actual: new Date().getFullYear(), periodo_actual: 3, periodos_disponibles: [1, 2] }));
 ruta('GET', 'academico/boletin/curso/(\\d+)/periodo/(\\d+)', ({ m, query }) => {
   const curso = db.cursos.find((c) => c.id === Number(m[1]));
   const periodo = db.periodos.find((p) => p.numero === Number(m[2]));
@@ -465,24 +512,31 @@ ruta('GET', 'academico/boletin/curso/(\\d+)/periodo/(\\d+)', ({ m, query }) => {
   if (!curso || !periodo || !est) return fail(404, 'No encontrado.');
   const materiasBoletin = db.cpms.filter((c) => c.curso === curso.id).map((cpm) => {
     const acts = db.actividades.filter((a) => a.cpm === cpm.id && a.fecha >= periodo.fecha_inicio && a.fecha <= periodo.fecha_fin);
-    const notas = db.entregas.filter((e) => e.estudiante === est.id && acts.some((a) => a.id === e.actividad) && e.calificacion != null).map((e) => Number(e.calificacion));
-    const prom = notas.length ? redondear(notas.reduce((s, n) => s + n, 0) / notas.length) : null;
+    const notas = db.entregas.filter((e) => e.estudiante === est.id && acts.some((a) => a.id === e.actividad)).map((e) => e.calificacion);
+    const [prom, nivel] = promedioNiveles(notas);
     const prof = db.personas.find((p) => p.id === cpm.persona);
+    const nombreMateria = materiaMini(cpm.materia)?.nombre;
     return {
-      materia_nombre: materiaMini(cpm.materia)?.nombre,
+      materia_nombre: nombreMateria,
       profesor: prof ? `${prof.nombre} ${prof.apellido}` : '',
       promedio: prom,
-      desempeno: desempeno(prom),
+      desempeno: NIVELES[nivel] || SIN_EVALUAR,
+      nivel_codigo: nivel,
       inasistencias: db.asistencias.filter((a) => a.cpm === cpm.id && a.estudiante === est.id && a.estado === 'Ausente' && a.fecha >= periodo.fecha_inicio && a.fecha <= periodo.fecha_fin).length,
-      observacion_docente: prom != null && prom >= 4 ? 'Excelente actitud y participación durante el periodo.' : '',
-      logros: db.logros.map((descripcion, i) => ({ orden: i + 1, descripcion })),
+      observacion_docente: nivel === 3 ? 'Excelente actitud y participación durante el trimestre.' : '',
+      logros: nivel ? (db.logros[nombreMateria] || []).map((descripcion, i) => ({ orden: i + 1, descripcion })) : [],
     };
   });
+  const [, nivelGeneral] = promedioNiveles(materiasBoletin.map((x) => x.nivel_codigo));
   return ok({
     anio: periodo.anio, generado_el: new Date().toISOString().slice(0, 10),
     curso: { id: curso.id, nombre_curso: curso.nombre_curso }, periodo,
     estudiante: { id: est.id, nombre: est.nombre, apellido: est.apellido, tipo_documento: est.tipo_documento, numero_documento: est.numero_documento },
-    materias: materiasBoletin, observaciones_generales: '',
+    materias: materiasBoletin,
+    desempeno_general: NIVELES[nivelGeneral] || SIN_EVALUAR,
+    nivel_general: nivelGeneral,
+    inasistencias_total: materiasBoletin.reduce((s, x) => s + x.inasistencias, 0),
+    observaciones_generales: '',
   });
 });
 ruta('GET', 'academico/boletin/curso/(\\d+)/periodo/(\\d+)/pdf', () => fail(503, 'La descarga de PDF no está disponible en la demo.'));

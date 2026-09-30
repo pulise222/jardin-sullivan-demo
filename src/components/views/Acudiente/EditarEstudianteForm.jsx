@@ -1,194 +1,140 @@
 import React, { useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import toast from 'react-hot-toast';
 import {
   useUpdateStudentMutation,
   useUploadStudentAvatarMutation,
   useDeleteStudentAvatarMutation,
 } from '../../../features/students/studentApi';
+import { ModalCard, Field, FormAlert, FormFooter } from '../../forms/ui/FormKit';
+import useConfirm from '../../../hooks/useConfirm';
 
-const EditarEstudianteForm = ({ estudiante, onClose, onUpdated }) => {
+/*
+  Ventana para que la familia edite los datos de su hijo (y cambie su foto).
+  La lógica de datos es la original (PUT del estudiante + subir/quitar foto);
+  cambió el diseño: usa las mismas piezas (FormKit) que los formularios del administrador.
+*/
+const EditarEstudianteForm = ({ estudiante, onClose }) => {
   const [updateStudent, { isLoading }] = useUpdateStudentMutation();
-  const [uploadAvatar, { isLoading: uploading }] = useUploadStudentAvatarMutation();
-  const [deleteAvatar, { isLoading: deleting }] = useDeleteStudentAvatarMutation();
+  const [uploadAvatar, { isLoading: subiendo }] = useUploadStudentAvatarMutation();
+  const [deleteAvatar, { isLoading: quitando }] = useDeleteStudentAvatarMutation();
+  const [confirm, confirmDialog] = useConfirm();
+  const [serverError, setServerError] = useState('');
 
-  // Si curso viene como objeto, obtener id; si es número, usarlo tal cual
+  // El curso puede llegar como objeto {id, nombre_curso} o como número; el PUT necesita el id
   const cursoId = useMemo(() => {
     if (!estudiante) return '';
     return typeof estudiante.curso === 'object' ? estudiante.curso?.id : estudiante.curso;
   }, [estudiante]);
 
-  // Para previsualizar cambios de foto sin recargar lista
-  const [fotoPreview, setFotoPreview] = useState(estudiante?.foto_url || null);
-  console.log(estudiante);
-  
-  const initialValues = useMemo(() => ({
-    nombre:           estudiante?.nombre || '',
-    apellido:         estudiante?.apellido || '',
-    fecha_nacimiento: estudiante?.fecha_nacimiento || '',
-    direccion:        estudiante?.direccion || '',
-    telefono:         estudiante?.telefono || '',
-    correo_electronico: estudiante?.correo_electronico || '',
-    tipo_documento:   estudiante?.tipo_documento || '',
-    numero_documento: estudiante?.numero_documento || '',
-    // mostramos curso solo lectura, pero lo enviaremos para PUT
-    curso:            cursoId || '',
-  }), [estudiante, cursoId]);
+  // Foto que se ve en la ventana (se actualiza al instante sin esperar a recargar la lista)
+  const [foto, setFoto] = useState(estudiante?.foto_url || null);
 
-  const validationSchema = Yup.object({
-    nombre:           Yup.string().required('Requerido'),
-    apellido:         Yup.string().required('Requerido'),
-    tipo_documento:   Yup.string().required('Requerido'),
-    numero_documento: Yup.string().required('Requerido'),
-    telefono:         Yup.string(),
-    direccion:        Yup.string(),
-    correo_electronico: Yup.string().email('Email inválido'),
-    fecha_nacimiento: Yup.string(), // si tu backend requiere, cámbialo a required
-    curso:            Yup.number().typeError('Curso inválido'),
+  const initialValues = useMemo(() => ({
+    nombre: estudiante?.nombre || '',
+    apellido: estudiante?.apellido || '',
+    fecha_nacimiento: estudiante?.fecha_nacimiento || '',
+    direccion: estudiante?.direccion || '',
+    telefono: estudiante?.telefono || '',
+    correo_electronico: estudiante?.correo_electronico || '',
+    tipo_documento: estudiante?.tipo_documento || '',
+    numero_documento: estudiante?.numero_documento || '',
+  }), [estudiante]);
+
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      nombre: Yup.string().trim().required('Requerido'),
+      apellido: Yup.string().trim().required('Requerido'),
+      tipo_documento: Yup.string().required('Requerido'),
+      numero_documento: Yup.string().trim().required('Requerido'),
+      correo_electronico: Yup.string().email('Correo inválido'),
+    }),
+    onSubmit: async (values) => {
+      setServerError('');
+      try {
+        // El endpoint usa PUT: hay que enviar todos los campos, incluido el curso (solo lectura aquí)
+        await updateStudent({ id: estudiante.id, ...values, curso: Number(cursoId) || cursoId }).unwrap();
+        toast.success('Datos actualizados');
+        onClose?.();
+      } catch (e) {
+        console.error(e);
+        setServerError('No se pudieron guardar los cambios. Revisa los datos e inténtalo de nuevo.');
+      }
+    },
   });
 
-  const onSubmit = async (values) => {
-    try {
-      // IMPORTANTE: tu endpoint usa PUT -> envía todos los campos, incluido curso (id)
-      const payload = {
-        ...values,
-        curso: Number(values.curso) || cursoId, // garantizar número
-      };
-
-      await updateStudent({ id: estudiante.id, ...payload }).unwrap();
-      onUpdated?.(); // si el padre quiere refetch
-      alert('Estudiante actualizado');
-      onClose?.();
-    } catch (e) {
-      console.error(e);
-      alert('No se pudo actualizar el estudiante');
-    }
-  };
-
-  const formik = useFormik({ initialValues, validationSchema, enableReinitialize: true, onSubmit });
-
-  const onAvatarChange = async (file) => {
+  const cambiarFoto = async (file) => {
     if (!file) return;
     try {
       const res = await uploadAvatar({ estudianteId: estudiante.id, file }).unwrap();
-      // si tu endpoint del avatar devuelve la entidad completa, usa res.foto_url;
-      // si devuelve el estudiante serializado, accede a res.foto_url igual:
-      const nueva = res?.foto_url || res?.foto || null;
-      if (nueva) setFotoPreview(nueva);
-      onUpdated?.();
+      setFoto(res?.foto_url || res?.foto || null);
+      toast.success('Foto actualizada');
     } catch (e) {
       console.error(e);
-      alert('No se pudo subir la foto');
+      toast.error('No se pudo subir la foto');
     }
   };
 
-  const onAvatarDelete = async () => {
-    if (!window.confirm('¿Quitar foto de perfil?')) return;
+  const quitarFoto = async () => {
+    const ok = await confirm({ title: '¿Quitar la foto?', message: 'Se mostrará la inicial de su nombre en su lugar.', confirmLabel: 'Quitar', danger: true });
+    if (!ok) return;
     try {
       await deleteAvatar(estudiante.id).unwrap();
-      setFotoPreview(null);
-      onUpdated?.();
+      setFoto(null);
+      toast.success('Foto eliminada');
     } catch (e) {
       console.error(e);
-      alert('No se pudo eliminar la foto');
+      toast.error('No se pudo eliminar la foto');
     }
   };
 
   return (
-    <div className="perfil-form" style={{ minWidth: 520 }}>
-      <h3>Editar estudiante</h3>
-
-      {/* FOTO */}
-      <div style={{ display:'flex', gap:16, alignItems:'center', marginBottom:16 }}>
-        <div style={{
-          width:96, height:96, borderRadius:'50%', overflow:'hidden',
-          border:'1px solid #ddd', display:'flex', alignItems:'center', justifyContent:'center'
-        }}>
-          <img
-            src={fotoPreview || `${import.meta.env.BASE_URL}avatar.svg`}
-            alt="Foto"
-            style={{ width:'100%', height:'100%', objectFit:'cover' }}
-          />
+    <ModalCard icon="fa-user-pen" title="Editar datos" subtitle={`${estudiante?.nombre ?? ''} ${estudiante?.apellido ?? ''}`} titleId="editar-hijo-titulo">
+      {/* Foto */}
+      <div className="ac-edit-foto">
+        <div className="ac-hero-avatar ac-hero-avatar-sm">
+          {foto ? <img src={foto} alt="Foto" /> : <span>{(estudiante?.nombre || '?').charAt(0)}</span>}
         </div>
-        <div style={{ display:'flex', gap:8 }}>
-          <label className="btn-primary" style={{ cursor:'pointer' }}>
-            {uploading ? 'Subiendo…' : 'Cambiar foto'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display:'none' }}
-              onChange={(e) => onAvatarChange(e.target.files?.[0])}
-              disabled={uploading}
-            />
+        <div className="pn-actions">
+          <label className="pn-btn-ghost pn-btn-small ac-upload">
+            <i className="fas fa-camera" aria-hidden="true"></i> {subiendo ? 'Subiendo…' : 'Cambiar foto'}
+            <input type="file" accept="image/*" hidden disabled={subiendo} onChange={(e) => { cambiarFoto(e.target.files?.[0]); e.target.value = ''; }} />
           </label>
-          {fotoPreview && (
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onAvatarDelete}
-              disabled={deleting}
-            >
-              {deleting ? 'Eliminando…' : 'Quitar foto'}
+          {foto && (
+            <button type="button" className="pn-btn-ghost pn-btn-small pf-danger" onClick={quitarFoto} disabled={quitando}>
+              <i className="fas fa-trash" aria-hidden="true"></i> Quitar
             </button>
           )}
         </div>
       </div>
 
-      {/* FORM */}
-      <form onSubmit={formik.handleSubmit}>
-        <div className="grid">
-          <label>Nombre
-            <input name="nombre" value={formik.values.nombre} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-            {formik.touched.nombre && formik.errors.nombre && <span className="error">{formik.errors.nombre}</span>}
-          </label>
-
-          <label>Apellido
-            <input name="apellido" value={formik.values.apellido} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-            {formik.touched.apellido && formik.errors.apellido && <span className="error">{formik.errors.apellido}</span>}
-          </label>
-
-          <label>Tipo de documento
-            <input name="tipo_documento" value={formik.values.tipo_documento} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-            {formik.touched.tipo_documento && formik.errors.tipo_documento && <span className="error">{formik.errors.tipo_documento}</span>}
-          </label>
-
-          <label>Número de documento
-            <input name="numero_documento" value={formik.values.numero_documento} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-            {formik.touched.numero_documento && formik.errors.numero_documento && <span className="error">{formik.errors.numero_documento}</span>}
-          </label>
-
-          <label>Teléfono
-            <input name="telefono" value={formik.values.telefono} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-          </label>
-
-          <label>Correo electrónico
-            <input type="email" name="correo_electronico" value={formik.values.correo_electronico} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-            {formik.touched.correo_electronico && formik.errors.correo_electronico && <span className="error">{formik.errors.correo_electronico}</span>}
-          </label>
-
-          <label>Dirección
-            <input name="direccion" value={formik.values.direccion} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-          </label>
-
-          <label>Fecha de nacimiento
-            <input type="date" name="fecha_nacimiento" value={formik.values.fecha_nacimiento} onChange={formik.handleChange} onBlur={formik.handleBlur}/>
-          </label>
-
-          <label>Curso (solo lectura)
-            <input value={estudiante?.curso?.nombre_curso || estudiante?.curso || ''} readOnly />
-          </label>
+      <form onSubmit={formik.handleSubmit} noValidate aria-labelledby="editar-hijo-titulo">
+        <FormAlert message={serverError} />
+        <div className="pn-form-grid">
+          <Field formik={formik} name="nombre" label="Nombre *" />
+          <Field formik={formik} name="apellido" label="Apellido *" />
+          <Field formik={formik} name="tipo_documento" label="Tipo de documento *" as="select">
+            <option value="">Selecciona</option>
+            <option value="RC">Registro civil</option>
+            <option value="TI">Tarjeta de identidad</option>
+            <option value="PAS">Pasaporte</option>
+            <option value="CE">Cédula de extranjería</option>
+          </Field>
+          <Field formik={formik} name="numero_documento" label="Número de documento *" />
+          <Field formik={formik} name="fecha_nacimiento" label="Fecha de nacimiento" type="date" />
+          <Field formik={formik} name="telefono" label="Teléfono de contacto" type="tel" />
+          <Field formik={formik} name="correo_electronico" label="Correo de contacto" type="email" span />
+          <Field formik={formik} name="direccion" label="Dirección" span />
         </div>
+        <p className="pn-field-hint">El curso lo asigna el jardín: {estudiante?.curso?.nombre_curso || 'sin asignar'}.</p>
 
-        <div className="perfil-actions" style={{ marginTop: 16 }}>
-          <button type="button" className="secondary" onClick={onClose} disabled={isLoading || uploading || deleting}>
-            Cancelar
-          </button>
-          <button type="submit" disabled={isLoading || uploading || deleting}>
-            {isLoading ? 'Guardando…' : 'Guardar cambios'}
-          </button>
-        </div>
+        <FormFooter onCancel={onClose} loading={isLoading} submitLabel="Guardar cambios" loadingLabel="Guardando…" />
       </form>
-    </div>
+      {confirmDialog}
+    </ModalCard>
   );
 };
 

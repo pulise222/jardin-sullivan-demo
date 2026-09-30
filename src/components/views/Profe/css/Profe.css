@@ -100,3 +100,130 @@
 /* ---------- Detalle de evento (ventana) ---------- */
 .pf-event-img { width: 100%; max-height: 26rem; margin-bottom: 1.6rem; border-radius: 1.6rem; object-fit: cover; }
 .pf-event-desc { margin: 0 0 1rem; color: var(--pn-ink-soft); font-size: 1.5rem; line-height: 1.6; }
+
+
+/* ---------- Planilla de evaluación (niveles cualitativos) ---------- */
+.pf-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.4rem; }
+.pf-celda { display: flex; align-items: center; gap: 0.6rem; }
+/* El selector toma el color del nivel elegido: se ve de un vistazo quién va bien y quién necesita apoyo */
+.pf-nivel { min-width: 13rem; font-weight: 700; }
+.pf-nivel.n1 { background: var(--pn-accent-soft); color: var(--pn-accent-strong); border-color: var(--pn-accent); }
+.pf-nivel.n2 { background: var(--pn-amber-soft); color: var(--pn-amber-strong); border-color: var(--pn-amber); }
+.pf-nivel.n3 { background: var(--pn-teal-soft); color: var(--pn-teal-strong); border-color: var(--pn-teal); }
+.pf-clip { color: var(--pn-accent-strong); font-size: 1.6rem; }
+
+/* ---------- Avance de evaluación en las tarjetas de actividades ---------- */
+.pf-progress { width: 100%; }
+.pf-progress small { color: var(--pn-ink-soft); font-size: 1.2rem; font-weight: 600; }
+.pf-progress-bar { height: 0.8rem; margin-bottom: 0.4rem; overflow: hidden; border-radius: 1rem; background: var(--pn-line); }
+.pf-progress-bar span { display: block; height: 100%; border-radius: 1rem; background: var(--pn-accent); transition: width 0.4s ease; }
+.pf-progress-bar span.is-full { background: var(--pn-teal); }
+.pf-act .pn-actions { margin-top: auto; flex-wrap: wrap; }
+
+
+/* ======================================================================
+   NIVELES DE EVALUACIÓN: colores tipo semáforo, iguales en toda la app.
+   No dependen de la paleta del módulo: en ciruela y ámbar, "ámbar" era también el acento
+   y Deficiente se confundía con Aceptable.
+     Deficiente = rojo · Aceptable = amarillo · Sobresaliente = verde
+   ====================================================================== */
+.pn-chip.lvl-1, .pf-nivel.n1 { background: #fde3e4; color: #b42318; border-color: #f08a8d; }
+.pn-chip.lvl-2, .pf-nivel.n2 { background: #fff1c2; color: #8a5a00; border-color: #f2c14e; }
+.pn-chip.lvl-3, .pf-nivel.n3 { background: #d8f3e0; color: #17703a; border-color: #6cc58d; }
+
+/* ======================================================================
+   TABLAS TIPO PLANILLA (asistencia y notas): columnas parejas.
+   Antes la tabla se estiraba al 100% y repartía el espacio sobrante sin orden,
+   así que una actividad y el promedio quedaban de tamaños distintos.
+   Ahora la tabla mide lo que suman sus columnas; si no caben, se desliza dentro de la tarjeta.
+   ====================================================================== */
+.pn-table.pf-grid { width: max-content; min-width: 100%; }
+.pn-table.pf-grid th, .pn-table.pf-grid td { text-align: center; vertical-align: middle; }
+.pn-table.pf-grid th:nth-child(1), .pn-table.pf-grid td:nth-child(1) { width: 6rem; }
+.pn-table.pf-grid th:nth-child(2), .pn-table.pf-grid td:nth-child(2) { min-width: 24rem; text-align: left; }
+
+/* Notas: todas las actividades y el promedio miden lo mismo */
+.pf-notas .pn-table.pf-grid th:nth-child(n+3), .pf-notas .pn-table.pf-grid td:nth-child(n+3) { width: 20rem; min-width: 20rem; }
+.pf-notas .pn-table.pf-grid thead th { white-space: normal; line-height: 1.3; }
+.pf-celda { justify-content: center; }
+.pf-nivel { width: 100%; min-width: 0; max-width: 17rem; }
+
+/* Asistencia: todas las fechas miden lo mismo */
+.pf-attendance .pn-table.pf-grid th:nth-child(n+3), .pf-attendance .pn-table.pf-grid td:nth-child(n+3) { width: 14rem; min-width: 14rem; }
+
+/* El nombre del estudiante queda fijo a la izquierda al deslizar las columnas (planilla de notas) */
+.pf-notas .pn-table.pf-grid th:nth-child(2), .pf-notas .pn-table.pf-grid td:nth-child(2) { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 10px 0 12px -12px rgba(0, 0, 0, 0.25); }
+.pf-notas .pn-table.pf-grid thead th:nth-child(2) { background: #f6fafa; }
+
+
+/* ======================================================================
+   PERFIL: portada con franja de color, foto que sobresale y datos con íconos
+   ====================================================================== */
+.pf-cover { overflow: hidden; padding: 0; }
+.pf-cover-bg {
+  height: 11rem;
+  background:
+    radial-gradient(28rem 14rem at 85% 0%, rgba(255, 255, 255, 0.35), transparent 70%),
+    linear-gradient(120deg, var(--pn-side), var(--pn-glass-b));
+}
+.pf-cover-body {
+  display: flex; align-items: flex-end; flex-wrap: wrap; gap: 1.6rem 2.4rem;
+  padding: 0 3rem 2.6rem; margin-top: -5.2rem;
+}
+.pf-photo-wrap { position: relative; flex: none; }
+.pf-cover .pf-photo {
+  display: grid; place-items: center; width: 12rem; height: 12rem; overflow: hidden;
+  border: 5px solid var(--pn-card); border-radius: 50%; background: var(--pn-accent-soft);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.4);
+}
+.pf-cover .pf-photo img { width: 100%; height: 100%; object-fit: cover; }
+.pf-photo-initial {
+  display: grid; place-items: center; width: 100%; height: 100%;
+  background: linear-gradient(135deg, var(--pn-side-1), var(--pn-side-2));
+  color: var(--pn-on-accent); font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 5rem; font-weight: 800; text-transform: uppercase;
+}
+/* Botón de cámara sobre la esquina de la foto */
+.pf-photo-btn {
+  position: absolute; right: 0.2rem; bottom: 0.6rem; display: grid; place-items: center; width: 3.8rem; height: 3.8rem;
+  border: 3px solid var(--pn-card); border-radius: 50%; background: var(--pn-accent); color: var(--pn-on-accent);
+  font-size: 1.5rem; cursor: pointer; transition: transform 0.2s ease;
+}
+.pf-photo-btn:hover:not(:disabled) { transform: scale(1.1); }
+.pf-cover .pf-profile-name { flex: 1; min-width: 22rem; padding-top: 6rem; }
+.pf-cover .pf-profile-name h2 { margin: 0 0 0.4rem; font-size: 3rem; }
+.pf-cover .pf-profile-name p { margin: 0 0 0.9rem; color: var(--pn-ink-soft); font-size: 1.5rem; }
+.pf-cover .pf-profile-name p i { margin-right: 0.5rem; }
+.pf-cover-actions { display: flex; flex-wrap: wrap; gap: 1rem; padding-bottom: 0.4rem; }
+
+/* Tres números de resumen */
+.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4rem; }
+.pf-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 0.3rem; padding: 1.8rem 1rem;
+  border: 1px solid var(--pn-line); border-radius: var(--pn-radius); background: var(--pn-card); box-shadow: var(--pn-shadow);
+}
+.pf-stat strong { font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 3.2rem; font-weight: 800; color: var(--pn-accent-strong); line-height: 1; }
+.pf-stat span { color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 700; text-align: center; }
+
+/* Lista de datos: ícono en círculo + etiqueta + valor */
+.pf-info { display: flex; flex-direction: column; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.pf-info-row { display: flex; align-items: center; gap: 1.4rem; padding: 1.1rem 0; border-bottom: 1px solid var(--pn-line); }
+.pf-info-row:last-child { border-bottom: 0; }
+.pf-info-ico { display: grid; place-items: center; flex: none; width: 4.2rem; height: 4.2rem; border-radius: 50%; background: var(--pn-accent-soft); color: var(--pn-accent-strong); font-size: 1.6rem; }
+.pf-info-row small { display: block; color: var(--pn-ink-soft); font-size: 1.15rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.pf-info-row strong { display: block; overflow-wrap: anywhere; font-size: 1.6rem; font-weight: 700; }
+.pf-info-row:nth-child(2) .pf-info-ico { background: var(--pn-teal-soft); color: var(--pn-teal-strong); }
+.pf-info-row:nth-child(3) .pf-info-ico { background: var(--pn-amber-soft); color: var(--pn-amber-strong); }
+.pf-info-row:nth-child(4) .pf-info-ico { background: var(--pn-petrol-soft); color: var(--pn-petrol-strong); }
+
+.pf-form-sec { margin: 0 0 1.2rem; color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.pf-form-sec:not(:first-of-type) { margin-top: 2.6rem; }
+
+@media screen and (max-width: 640px) {
+  .pf-cover-body { flex-direction: column; align-items: center; padding: 0 1.6rem 2rem; text-align: center; }
+  .pf-cover .pf-profile-name { padding-top: 0; }
+  .pf-cover-actions { justify-content: center; }
+  .pf-stats { gap: 0.8rem; }
+  .pf-stat strong { font-size: 2.4rem; }
+}
+
+.pf-cover-actions a.pn-btn-ghost { display: inline-flex; align-items: center; gap: 0.8rem; text-decoration: none; }

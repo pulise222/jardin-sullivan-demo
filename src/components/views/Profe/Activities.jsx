@@ -7,16 +7,12 @@ import toast from 'react-hot-toast';
 import {
   useGetActividadesPorCursoQuery,
   useCrearActividadEnCursoMutation,
-  useGetEntregasByActividadQuery,
-  useActualizarEntregaMutation,
   useActualizarActividadMutation,
   useEliminarActividadMutation,
+  useGetMatrizCalificacionesPorCursoQuery,
 } from '../../../features/actividades/actividadesApi';
 
-import {
-  setActividadSeleccionada,
-  toggleFormulario,
-} from '../../../features/actividades/actividadesSlice';
+import { toggleFormulario } from '../../../features/actividades/actividadesSlice';
 
 import Modal from '../../container/Modal/Modal';
 import { ModalCard } from '../../forms/ui/FormKit';
@@ -31,50 +27,51 @@ const schemaActividad = Yup.object({
 });
 
 /*
-  Actividades del curso. La lógica de datos (RTK Query + Redux + Formik) es la original;
-  lo que cambió: el diseño, y que los cuadros feos del navegador (alert / prompt / confirm)
-  ahora son avisos (toast), ventanas del panel y el diálogo useConfirm.
+  Actividades de UNA materia en UN curso: crear, cambiar la fecha o eliminar.
+  Antes cada tarjeta tenía un botón «Ver entregas» con una segunda tabla para calificar;
+  como la evaluación ya se hace en la pestaña «Notas» (una sola planilla), ese botón
+  duplicaba el trabajo y se quitó. Aquí cada tarjeta solo muestra el avance:
+  cuántos niños ya fueron evaluados en esa actividad.
 */
 const Activities = () => {
   const dispatch = useDispatch();
   const [confirm, confirmDialog] = useConfirm();
 
-  // CPM del curso+materia seleccionado
-  const cpm = useSelector((s) =>
-    s.clase?.claseEnCurso?.dictada_por ?? s.courses?.curso_profesor_materia
-  );
+  // Asignación (curso + materia) elegida en «Mis cursos»
+  const cpm = useSelector((s) => s.courses?.curso_profesor_materia);
   const cursoId = cpm?.curso?.id;
   const cpmId = cpm?.id;
 
   const mostrarFormulario = useSelector((s) => s.actividades.mostrarFormulario);
-  const actividadSeleccionada = useSelector((s) => s.actividades.actividadSeleccionada);
-  const actividadId = actividadSeleccionada?.id || null;
 
-  const { data: actividades, isLoading, refetch } = useGetActividadesPorCursoQuery(
-    { cursoId, todas: 0 },
+  // cpmId: trae solo las actividades de ESTA materia (antes se mezclaban con las de otras materias)
+  const { data: actividades, isLoading } = useGetActividadesPorCursoQuery(
+    { cursoId, cpmId },
     { skip: !cursoId }
   );
 
-  // Filtro de entregas: 'entregadas' | 'pendientes' | 'todas'
-  const [detalleFiltro, setDetalleFiltro] = useState('entregadas');
-
-  const {
-    data: entregas,
-    isLoading: loadingEntregas,
-    refetch: refetchEntregas,
-  } = useGetEntregasByActividadQuery(
-    { actividadId, estado: detalleFiltro },
-    { skip: !actividadId }
+  // La planilla se usa aquí solo para contar cuántos niños están evaluados por actividad
+  const { data: planilla } = useGetMatrizCalificacionesPorCursoQuery(
+    { cursoId, cpmId },
+    { skip: !cursoId }
   );
 
+  const avance = useMemo(() => {
+    const total = planilla?.estudiantes?.length || 0;
+    const evaluados = {};
+    for (const c of planilla?.celdas || []) {
+      if (c.calificacion != null) evaluados[c.actividad_id] = (evaluados[c.actividad_id] || 0) + 1;
+    }
+    return { total, evaluados };
+  }, [planilla]);
+
   const [crearActividad] = useCrearActividadEnCursoMutation();
-  const [actualizarEntrega] = useActualizarEntregaMutation();
   const [actualizarActividad] = useActualizarActividadMutation();
   const [eliminarActividad] = useEliminarActividadMutation();
 
-  // Ventana pequeña para pedir un dato: { tipo: 'fecha' | 'nota', ae?: entrega }
-  const [dialog, setDialog] = useState(null);
-  const [valorDialog, setValorDialog] = useState('');
+  // Ventana pequeña para cambiar la fecha de entrega: { actividad } | null
+  const [dialogFecha, setDialogFecha] = useState(null);
+  const [nuevaFecha, setNuevaFecha] = useState('');
 
   const hoyISO = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -87,7 +84,6 @@ const Activities = () => {
       await crearActividad({ cursoId, payload: { ...values, cpm_id: cpmId } }).unwrap();
       resetForm();
       dispatch(toggleFormulario(false));
-      refetch();
       toast.success('Actividad creada');
     } catch (e) {
       console.error(e);
@@ -95,80 +91,33 @@ const Activities = () => {
     }
   };
 
-  const handleVerDetalle = (actividad) => {
-    dispatch(setActividadSeleccionada(actividad));
-    setDetalleFiltro('entregadas');
+  const abrirFecha = (actividad) => {
+    setNuevaFecha(actividad.fecha_entrega ?? '');
+    setDialogFecha(actividad);
   };
-
-  // Abre la ventana para cambiar la fecha de entrega
-  const abrirFecha = () => {
-    setValorDialog(actividadSeleccionada?.fecha_entrega ?? '');
-    setDialog({ tipo: 'fecha' });
-  };
-
-  // Abre la ventana para calificar (solo si ya fue entregada)
-  const abrirNota = (ae) => {
-    if (!ae.entregado_en) {
-      toast.error('Primero marca la actividad como entregada.');
-      return;
-    }
-    setValorDialog(ae.calificacion ?? '');
-    setDialog({ tipo: 'nota', ae });
-  };
-
-  const cerrarDialog = () => setDialog(null);
 
   const guardarFecha = async () => {
-    if (!valorDialog) return;
+    if (!nuevaFecha) return;
     try {
-      const updated = await actualizarActividad({
-        actividadId,
-        data: { fecha_entrega: valorDialog },
-      }).unwrap();
-      dispatch(setActividadSeleccionada({ ...actividadSeleccionada, ...updated }));
-      refetch();
+      await actualizarActividad({ actividadId: dialogFecha.id, data: { fecha_entrega: nuevaFecha } }).unwrap();
       toast.success('Fecha de entrega actualizada');
-      cerrarDialog();
+      setDialogFecha(null);
     } catch (e) {
       console.error(e);
       toast.error('No se pudo actualizar la fecha de entrega');
     }
   };
 
-  const guardarNota = async () => {
-    const nota = Number(valorDialog);
-    if (valorDialog === '' || Number.isNaN(nota) || nota < 0 || nota > 5) {
-      toast.error('La nota debe estar entre 0 y 5.');
-      return;
-    }
-    try {
-      await actualizarEntrega({
-        actividadEstudianteId: dialog.ae.id,
-        actividadId,
-        data: { calificacion: nota },
-      }).unwrap();
-      refetchEntregas();
-      toast.success('Nota guardada');
-      cerrarDialog();
-    } catch (e) {
-      console.error(e);
-      toast.error('No se pudo calificar');
-    }
-  };
-
-  const handleEliminarActividad = async () => {
-    if (!actividadId) return;
+  const handleEliminar = async (actividad) => {
     const ok = await confirm({
-      title: '¿Eliminar esta actividad?',
-      message: 'También se borrarán las entregas y notas asociadas.',
+      title: `¿Eliminar «${actividad.titulo}»?`,
+      message: 'También se borrarán las evaluaciones de los niños en esta actividad.',
       confirmLabel: 'Eliminar',
       danger: true,
     });
     if (!ok) return;
     try {
-      await eliminarActividad(actividadId).unwrap();
-      dispatch(setActividadSeleccionada(null));
-      refetch();
+      await eliminarActividad(actividad.id).unwrap();
       toast.success('Actividad eliminada');
     } catch (e) {
       console.error(e);
@@ -176,35 +125,12 @@ const Activities = () => {
     }
   };
 
-  const marcarEntregada = async (ae) => {
-    try {
-      await actualizarEntrega({
-        actividadEstudianteId: ae.id,
-        actividadId,
-        data: { entregado_en: new Date().toISOString() },
-      }).unwrap();
-      refetchEntregas();
-      toast.success('Marcada como entregada');
-    } catch (e) {
-      console.error(e);
-      toast.error('No se pudo marcar como entregada');
-    }
-  };
-
-  const abrirEntregable = (ae) => {
-    if (!ae.entregable_url) {
-      toast.error('Este estudiante no tiene entregable adjunto.');
-      return;
-    }
-    window.open(ae.entregable_url, '_blank', 'noopener,noreferrer');
-  };
-
   if (!cpm) return <p className="pn-results-hint">Selecciona un curso para gestionar sus actividades.</p>;
 
   return (
     <div className="pf-activities">
       <div className="pn-toolbar pf-toolbar">
-        <h2>Actividades del curso</h2>
+        <h2>Actividades de {cpm?.materia?.nombre}</h2>
         <div className="pn-toolbar-actions">
           <button type="button" className="pn-btn" onClick={() => dispatch(toggleFormulario(true))}>
             <i className="fas fa-plus" aria-hidden="true"></i> Nueva actividad
@@ -212,7 +138,6 @@ const Activities = () => {
         </div>
       </div>
 
-      {/* Lista de actividades */}
       {isLoading ? (
         <div className="pn-state"><span className="pn-spinner" /><strong>Cargando actividades…</strong></div>
       ) : (actividades || []).length === 0 ? (
@@ -221,108 +146,40 @@ const Activities = () => {
         </div>
       ) : (
         <ul className="pf-act-grid">
-          {(actividades || []).map((a) => (
-            <li
-              key={a.id}
-              className={`pf-act ${actividadId === a.id ? 'is-selected' : ''}`}
-            >
-              <h3>{a.titulo}</h3>
-              <p>{a.descripcion}</p>
-              <div className="pf-act-meta">
-                <span className="pn-chip is-teal"><i className="fas fa-calendar" aria-hidden="true"></i>&nbsp;{a.fecha}</span>
-                {a.fecha_entrega && (
-                  <span className="pn-chip is-amber"><i className="fas fa-flag" aria-hidden="true"></i>&nbsp;Entrega {a.fecha_entrega}</span>
-                )}
-              </div>
-              <button type="button" className="pn-btn-ghost" onClick={() => handleVerDetalle(a)}>
-                Ver entregas <i className="fas fa-arrow-right" aria-hidden="true"></i>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* Detalle de entregas de la actividad elegida */}
-      {actividadId && (
-        <section className="pn-card pn-panel pf-entregas">
-          <div className="pn-panel-head">
-            <h2>Entregas · {actividadSeleccionada?.titulo}</h2>
-            <div className="pn-actions">
-              <button type="button" className="pn-btn-ghost" onClick={abrirFecha}>
-                <i className="fas fa-calendar-pen" aria-hidden="true"></i> Cambiar entrega
-              </button>
-              <button type="button" className="pn-btn-ghost pf-danger" onClick={handleEliminarActividad}>
-                <i className="fas fa-trash" aria-hidden="true"></i> Eliminar
-              </button>
-            </div>
-          </div>
-
-          <div className="pf-tabs pf-tabs-sm" role="tablist" aria-label="Filtrar entregas">
-            {[['entregadas', 'Entregadas'], ['pendientes', 'Pendientes'], ['todas', 'Todas']].map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={detalleFiltro === id}
-                className={detalleFiltro === id ? 'is-active' : ''}
-                onClick={() => setDetalleFiltro(id)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {loadingEntregas ? (
-            <div className="pn-state"><span className="pn-spinner" /></div>
-          ) : (
-            <div className="pn-table-wrap">
-              <table className="pn-table pf-grid">
-                <thead>
-                  <tr><th>Estudiante</th><th>Entregado</th><th>Nota</th><th>Acciones</th></tr>
-                </thead>
-                <tbody>
-                  {(entregas || []).map((ae) => (
-                    <tr key={ae.id}>
-                      <td><strong>{ae.estudiante_nombre}</strong></td>
-                      <td>
-                        {ae.entregado_en
-                          ? new Date(ae.entregado_en).toLocaleString()
-                          : <span className="pn-chip is-amber">Pendiente</span>}
-                      </td>
-                      <td>{ae.calificacion != null ? <span className="pn-chip is-accent">{ae.calificacion}</span> : '—'}</td>
-                      <td>
-                        <div className="pn-actions">
-                          <button
-                            type="button" className="pn-btn-ghost pn-btn-small"
-                            onClick={() => abrirEntregable(ae)} disabled={!ae.entregable_url}
-                            title={ae.entregable_url ? 'Abrir entregable' : 'Sin adjunto'}
-                          >
-                            Entregable
-                          </button>
-                          {!ae.entregado_en && (
-                            <button type="button" className="pn-btn-ghost pn-btn-small" onClick={() => marcarEntregada(ae)}>
-                              Marcar entregada
-                            </button>
-                          )}
-                          <button
-                            type="button" className="pn-btn pn-btn-small"
-                            onClick={() => abrirNota(ae)} disabled={!ae.entregado_en}
-                            title={!ae.entregado_en ? 'Primero marca como entregada' : 'Calificar'}
-                          >
-                            Calificar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {(entregas || []).length === 0 && (
-                    <tr><td colSpan={4} className="pn-results-hint">No hay entregas para este filtro.</td></tr>
+          {(actividades || []).map((a) => {
+            const evaluados = avance.evaluados[a.id] || 0;
+            const completo = avance.total > 0 && evaluados === avance.total;
+            return (
+              <li key={a.id} className="pf-act">
+                <h3>{a.titulo}</h3>
+                <p>{a.descripcion}</p>
+                <div className="pf-act-meta">
+                  <span className="pn-chip is-teal"><i className="fas fa-calendar" aria-hidden="true"></i>&nbsp;{a.fecha}</span>
+                  {a.fecha_entrega && (
+                    <span className="pn-chip is-amber"><i className="fas fa-flag" aria-hidden="true"></i>&nbsp;Entrega {a.fecha_entrega}</span>
                   )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                </div>
+
+                {/* Avance: niños evaluados / total del curso */}
+                <div className="pf-progress" title={`${evaluados} de ${avance.total} evaluados`}>
+                  <div className="pf-progress-bar">
+                    <span style={{ width: avance.total ? `${(evaluados / avance.total) * 100}%` : 0 }} className={completo ? 'is-full' : ''} />
+                  </div>
+                  <small>{evaluados} de {avance.total} evaluados</small>
+                </div>
+
+                <div className="pn-actions">
+                  <button type="button" className="pn-btn-ghost pn-btn-small" onClick={() => abrirFecha(a)}>
+                    <i className="fas fa-calendar-pen" aria-hidden="true"></i> Fecha de entrega
+                  </button>
+                  <button type="button" className="pn-btn-ghost pn-btn-small pf-danger" onClick={() => handleEliminar(a)} aria-label={`Eliminar ${a.titulo}`}>
+                    <i className="fas fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
       {/* Ventana: nueva actividad */}
@@ -369,31 +226,19 @@ const Activities = () => {
         </ModalCard>
       </Modal>
 
-      {/* Ventana pequeña: cambiar fecha de entrega o poner nota */}
-      <Modal isOpen={!!dialog} onClose={cerrarDialog}>
-        {dialog && (
-          <ModalCard
-            icon={dialog.tipo === 'fecha' ? 'fa-calendar-pen' : 'fa-star'}
-            title={dialog.tipo === 'fecha' ? 'Fecha de entrega' : 'Calificar entrega'}
-            subtitle={dialog.tipo === 'fecha' ? actividadSeleccionada?.titulo : dialog.ae.estudiante_nombre}
-            titleId="dialogo-titulo"
-          >
-            <form
-              onSubmit={(e) => { e.preventDefault(); (dialog.tipo === 'fecha' ? guardarFecha : guardarNota)(); }}
-              aria-labelledby="dialogo-titulo"
-            >
+      {/* Ventana pequeña: cambiar la fecha de entrega */}
+      <Modal isOpen={!!dialogFecha} onClose={() => setDialogFecha(null)}>
+        {dialogFecha && (
+          <ModalCard icon="fa-calendar-pen" title="Fecha de entrega" subtitle={dialogFecha.titulo} titleId="dialogo-fecha-titulo">
+            <form onSubmit={(e) => { e.preventDefault(); guardarFecha(); }} aria-labelledby="dialogo-fecha-titulo">
               <div className="pn-form-grid pn-one-col">
                 <div className="pn-field">
-                  <label htmlFor="valor-dialogo">{dialog.tipo === 'fecha' ? 'Nueva fecha' : 'Nota (0 a 5)'}</label>
-                  {dialog.tipo === 'fecha' ? (
-                    <input id="valor-dialogo" type="date" value={valorDialog} onChange={(e) => setValorDialog(e.target.value)} autoFocus />
-                  ) : (
-                    <input id="valor-dialogo" type="number" min="0" max="5" step="0.1" value={valorDialog} onChange={(e) => setValorDialog(e.target.value)} autoFocus />
-                  )}
+                  <label htmlFor="nueva-fecha">Nueva fecha</label>
+                  <input id="nueva-fecha" type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} autoFocus />
                 </div>
               </div>
               <footer className="pn-modal-foot">
-                <button type="button" className="pn-btn-ghost" onClick={cerrarDialog}>Cancelar</button>
+                <button type="button" className="pn-btn-ghost" onClick={() => setDialogFecha(null)}>Cancelar</button>
                 <button type="submit" className="pn-btn"><i className="fas fa-check" aria-hidden="true"></i>Guardar</button>
               </footer>
             </form>

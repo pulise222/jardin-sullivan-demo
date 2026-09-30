@@ -131,6 +131,18 @@
   --pn-petrol: #1f4e9e;    --pn-petrol-soft: #dbe6f7;  --pn-petrol-strong: #163d7e;
 }
 
+/*
+  SCROLL DE LOS PANELES.
+  index.css deja el <body> como flex de altura 100vh y #root con overflow:hidden. Resultado: #root
+  se estira a la altura de la pantalla y RECORTA todo lo que la pase (no se podía hacer scroll).
+  En cuanto el panel existe (:has), liberamos el overflow y el ancho, igual que hace el hook
+  useFreeScroll en la landing. Así la página crece y el navegador hace scroll normal.
+*/
+#root:has(.pn-layout) {
+  overflow: visible;
+  width: 100%;
+}
+
 /* ---------- Estructura: menú lateral + contenido ---------- */
 .pn-layout {
   display: grid;

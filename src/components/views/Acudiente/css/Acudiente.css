@@ -1,165 +1,111 @@
-/* src/components/views/Acudiente/css/Acudiente.css */
-.acu-layout{
-  display:grid;
-  grid-template-columns:260px 1fr;
-  min-height:100vh;
-  background:linear-gradient(#f5fafc,#eef5fb);
-  font-size: 2rem;
+/* src/components/views/Acudiente/css/Acudiente.css
+   Estilos PROPIOS del panel de familias (prefijo "ac-"). La base (menú de vidrio, tarjetas, botones,
+   chips) viene de src/styles/panel.css y algunas piezas (.pf-tabs, .pf-stats, .pf-info) de Profe.css.
+   Los niveles de evaluación (.lvl-1/2/3) también están definidos en Profe.css. */
+
+/* El resumen de 2 o 3 números se reparte solo */
+.pn-layout .pf-stats { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+
+/* ---------- Selector de hijo ---------- */
+.ac-selector { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+.ac-selector button {
+  display: inline-flex; align-items: center; gap: 1rem; padding: 0.8rem 1.6rem 0.8rem 0.8rem;
+  border: 2px solid var(--pn-line); border-radius: 10rem; background: var(--pn-card); color: var(--pn-ink);
+  font: inherit; text-align: left; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.acu-sidebar{background:#3a6ea5;padding:18px;color:#fff;display:flex;flex-direction:column;gap:18px;}
-.acu-user{display:flex;flex-direction:column;align-items:center;gap:8px;}
-.acu-avatar img{width:100px;height:82px;border-radius:50%;object-fit:cover;border:3px solid #fff3;}
-.acu-username{font-weight:700;text-align:center}
-.acu-menu{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.acu-item{all:unset;display:block;padding:10px 12px;border-radius:10px;cursor:pointer;background:transparent;color:#fff}
-.acu-item:hover{background:#ffffff1a}
-.acu-item.active{background:#ffffff2b}
-.acu-item.logout{color:#ffdede}
-.acu-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;margin-right:8px;vertical-align:middle}
-
-.acu-main{padding:18px 22px}
-.acu-breadcrumb{background:#ffffff;box-shadow:0 2px 6px rgba(0,0,0,.06);border-radius:12px;padding:12px 16px;margin-bottom:14px;color:#6b7a90;font-weight:600}
-.acu-breadcrumb .sep{margin:0 8px;color:#9aa6b2}
-.acu-panel{
-  padding:8px;
+.ac-selector button:hover { border-color: var(--pn-accent); }
+.ac-selector button.is-active { border-color: var(--pn-accent); background: var(--pn-accent-soft); box-shadow: 0 6px 16px -10px var(--pn-accent-glow); }
+.ac-selector strong { display: block; font-size: 1.5rem; }
+.ac-selector small { display: block; color: var(--pn-ink-soft); font-size: 1.2rem; }
+.ac-mini-avatar {
+  display: grid; place-items: center; flex: none; width: 4rem; height: 4rem; overflow: hidden; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pn-side-1), var(--pn-side-2)); color: var(--pn-on-accent);
+  font-size: 1.8rem; font-weight: 800; text-transform: uppercase;
 }
+.ac-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.acu-tabs{display:flex;gap:10px;margin-bottom:12px}
-.acu-tab{all:unset;padding:8px 14px;border-radius:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.06);cursor:pointer;color:#1b3158}
-.acu-tab.active{background:#1b3158;color:#fff}
-
-.acu-card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:16px}
-
-.est-card{display:grid;grid-template-columns:1.1fr 1.4fr .8fr;gap:16px;margin-bottom:16px}
-.est-left{display:flex;gap:12px;align-items:center}
-.est-avatar img{width:70px;height:70px;border-radius:50%;object-fit:cover}
-.est-nombre{margin:0 0 6px 0}
-.est-curso{padding:.2rem .6rem;border-radius:16px;background:#eaf3ff;color:#1b3158;font-weight:700;font-size:.9rem}
-
-.est-info{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;color:#1b3158}
-.est-actions{background:#fff6d8;border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
-.btn-primary{background:#1b7bd7;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
-.btn-secondary{background:#eef3f8;color:#1b3158;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
-.btn-secondary:hover{background:#e3ecf7}
-
-.acu-title{margin:0 0 10px 0}
-.events-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
-.event-item{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.06);padding:12px}
-.muted{color:#6b7a90;font-size:.9rem}
-
-.perfil-wrap{display:flex;gap:16px;align-items:center}
-/* .perfil-wrapper{display:flex;gap:16px;align-items:center} */
-.perfil-avatar-lg img{
-  width:84px;
-  height:84px;
-  border-radius:50%;
-  object-fit:cover}
-.perfil-datos p{margin:.2rem 0}
-
-/* grid principal: contenido + rail derecho */
-.acu-grid {
-  display: grid;
-  grid-template-columns: minmax(680px, 2fr) 1fr;
-  gap: 24px;
+/* ---------- Tarjeta principal del hijo ---------- */
+.ac-hijos { display: flex; flex-direction: column; gap: 2rem; }
+.ac-hero { display: flex; align-items: center; flex-wrap: wrap; gap: 2rem 2.4rem; padding: 2.4rem; }
+.ac-hero-avatar {
+  display: grid; place-items: center; flex: none; width: 10rem; height: 10rem; overflow: hidden;
+  border: 4px solid var(--pn-accent-soft); border-radius: 50%;
+  background: linear-gradient(135deg, var(--pn-side-1), var(--pn-side-2)); color: var(--pn-on-accent);
+  font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 4.4rem; font-weight: 800; text-transform: uppercase;
 }
+.ac-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.ac-hero-avatar-sm { width: 8rem; height: 8rem; font-size: 3.4rem; }
+.ac-hero-text { flex: 1; min-width: 20rem; }
+.ac-hero-text h2 { margin: 0 0 1rem; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2.8rem; font-weight: 800; letter-spacing: -0.02em; }
+.ac-hero-chips { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+.ac-hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; }
+.ac-info-grid { display: grid; grid-template-columns: 1fr; gap: 0 3rem; }
+@media screen and (min-width: 820px) { .ac-info-grid { grid-template-columns: 1fr 1fr; } }
 
-/* tarjetas reutilizables */
-.acu-card {
-  background: #fff;
-  border: 1px solid #eaeaea;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
-}
-.acu-card + .acu-card { margin-top: 16px; }
+/* ---------- Actividades del hijo ---------- */
+.ac-actividades { display: flex; flex-direction: column; gap: 1.6rem; }
+.ac-act-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(32rem, 1fr)); gap: 1.6rem; margin: 0; padding: 0; list-style: none; }
+.ac-act { display: flex; flex-direction: column; gap: 1.1rem; padding: 2rem; }
+.ac-act-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ac-act-head h3 { margin: 0 0 0.6rem; font-size: 1.8rem; font-weight: 800; }
+.ac-act p { margin: 0; color: var(--pn-ink-soft); font-size: 1.4rem; line-height: 1.5; }
+.ac-act-meta { display: flex; flex-wrap: wrap; gap: 1.4rem; color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 600; }
+.ac-act-meta i { margin-right: 0.4rem; }
+.ac-act-files { margin-top: auto; flex-wrap: wrap; }
+.ac-upload { cursor: pointer; }
 
-.acu-card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 8px;
-}
-.acu-card-head h4 { margin: 0; }
+/* ---------- Editar datos del hijo ---------- */
+.ac-edit-foto { display: flex; align-items: center; flex-wrap: wrap; gap: 1.6rem; margin-bottom: 2rem; }
 
-.btn-link {
-  background: transparent; border: none; color: #1b5fcc; cursor: pointer;
-}
+/* ---------- Boletín ---------- */
+.ac-boletin { display: flex; flex-direction: column; gap: 2rem; }
+.ac-bol-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.4rem; }
+.ac-bol-top .pf-tabs { margin-bottom: 0; }
+.pf-tabs button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* rail derecho */
-.acu-rail { position: sticky; top: 12px; height: fit-content; }
+.ac-resumen { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; padding: 2.4rem 2.8rem;
+  background: linear-gradient(135deg, var(--pn-card) 55%, var(--pn-accent-soft)); }
+.ac-resumen-label { display: block; margin-bottom: 1rem; color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.ac-resumen-nivel .pn-chip { padding: 0.8rem 2rem; font-size: 2.2rem; font-weight: 800; }
+.ac-resumen small { display: block; margin-top: 1rem; color: var(--pn-ink-soft); font-size: 1.3rem; }
+.ac-resumen-nums { display: flex; gap: 3rem; }
+.ac-resumen-nums div { text-align: center; }
+.ac-resumen-nums strong { display: block; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 3.4rem; font-weight: 800; color: var(--pn-accent-strong); line-height: 1; }
+.ac-resumen-nums span { color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 700; }
 
-/* mini perfil */
-.acu-profile-mini {
-  display: flex; gap: 12px; align-items: center;
-}
-.acu-profile-mini img {
-  width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
-  border: 1px solid #ddd;
-}
-.acu-profile-mini .name { font-weight: 700; }
-.muted { color: #6b7280; font-size: .9rem; }
+.ac-materias { display: grid; grid-template-columns: repeat(auto-fill, minmax(32rem, 1fr)); gap: 1.6rem; margin: 0; padding: 0; list-style: none; }
+.ac-materia { display: flex; flex-direction: column; gap: 1.2rem; padding: 2.2rem; }
+.ac-materia-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ac-materia-head h3 { margin: 0 0 0.4rem; font-size: 2rem; font-weight: 800; letter-spacing: -0.01em; }
+.ac-materia-head small { color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 600; }
+.ac-materia-head small i { margin-right: 0.4rem; }
+.ac-materia-faltas { color: var(--pn-ink-soft); font-size: 1.35rem; font-weight: 600; }
+.ac-materia-faltas i { margin-right: 0.6rem; color: var(--pn-accent-strong); }
+.ac-logros small, .ac-obs small { display: block; margin-bottom: 0.6rem; color: var(--pn-ink-soft); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.ac-logros ul { margin: 0; padding-left: 1.8rem; font-size: 1.4rem; line-height: 1.6; }
+.ac-obs { margin: 0; padding: 1.2rem 1.4rem; border-left: 4px solid var(--pn-accent); border-radius: 0 1.2rem 1.2rem 0; background: var(--pn-accent-soft); font-size: 1.4rem; line-height: 1.5; }
 
-/* tabs pequeños usados en actividades del estudiante */
-.acu-tabs.small { margin-bottom: 8px; }
-.cd-tab { padding: 6px 10px; border-radius: 8px; border: 1px solid #e5e7eb; margin-right: 6px; }
-.cd-tab.active { background: #1b3158; border-color: #1b3158; color: #fff; }
+.ac-evolucion th:not(:first-child), .ac-evolucion td:not(:first-child) { min-width: 14rem; }
+.ac-evolucion th:first-child, .ac-evolucion td:first-child { text-align: left; min-width: 20rem; }
+.ac-evolucion-total td { background: var(--pn-accent-soft); }
 
-/* mesa tabla compartida (ya usas una) */
-.table-wrap { overflow-x: auto; }
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
-.table th { background: #f9fafb; text-align: left; font-weight: 700; }
-
-/* responsive */
-@media (max-width: 1100px) {
-  .acu-grid { grid-template-columns: 1fr; }
-  .acu-rail { position: static; }
+@media screen and (max-width: 640px) {
+  .ac-hero { flex-direction: column; text-align: center; padding: 2rem 1.6rem; }
+  .ac-hero-chips, .ac-hero-actions { justify-content: center; }
+  .ac-resumen { padding: 2rem; }
+  .ac-act-list, .ac-materias { grid-template-columns: 1fr; }
 }
 
-.acu-card .muted { color:#666; font-size: 12px; }
+/* ---------- Impresión del boletín ----------
+   Al imprimir o "guardar como PDF" solo debe verse el boletín: sin menú, botones ni pestañas. */
+.ac-print-head { display: none; }
 @media print {
-  .acu-sidebar, .acu-breadcrumb, .btn-secondary { display: none !important; }
-  .acu-card { box-shadow: none; border: none; }
-  body { background: #fff; }
-}
-.acu-panel h3, .acu-panel h2 {
-  color: #0e3c8b;
-}
-.perfil-read button
-{
-  color: #0e3c8b;
-}
-
-/* ======================================================================
-   RESPONSIVE (versión demo)
-   El panel ahora vive dentro del armazón .pn-layout (menú con botón de hamburguesa en celular).
-   Estas reglas hacen que el contenido interno se acomode en pantallas pequeñas.
-   ====================================================================== */
-
-/* El contenido interno se diseñó para letra grande (2rem); en celular la reducimos */
-.acu-panel { padding: 0; font-size: clamp(1.5rem, 1.25rem + 0.5vw, 2rem); }
-.acu-panel h2, .acu-panel h3 { color: var(--pn-ink); }
-
-@media (max-width: 900px) {
-  /* Tarjeta de estudiante: de tres columnas a una sola */
-  .est-card { grid-template-columns: 1fr; }
-  .est-actions { align-items: stretch; }
-  /* Las pestañas internas se deslizan en vez de romper la pantalla */
-  .acu-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
-  .acu-tab { white-space: nowrap; flex: none; }
-  /* Filas de eventos y del perfil pasan a vertical */
-  .event-item { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .perfil-wrap { flex-direction: column; align-items: flex-start; }
-  .acu-card { padding: 14px; }
-}
-
-@media (max-width: 600px) {
-  .est-info { grid-template-columns: 1fr; }
-  .est-left { flex-direction: column; align-items: flex-start; }
-  /* Botones ocupan todo el ancho para que sean fáciles de tocar */
-  .est-actions .btn-primary, .est-actions .btn-secondary { width: 100%; }
-}
-
-@media (max-width: 920px) {
-  /* Perfil: las dos tarjetas se apilan y el formulario pasa a una columna */
-  .acu-panel .perfil-read, .acu-panel .perfil-form .grid, .acu-panel .perfil-form { grid-template-columns: 1fr !important; }
-  .acu-panel .perfil-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pn-sidebar, .pn-backdrop, .pn-header, .pn-menu-toggle, .ac-noprint, .pf-tabs, #root + * { display: none !important; }
+  .pn-layout { display: block !important; background: #fff !important; }
+  .pn-main { padding: 0 !important; background: #fff !important; }
+  .ac-print-head { display: block; margin-bottom: 1.6rem; }
+  .ac-print-head h2 { margin: 0; font-size: 2.4rem; }
+  .pn-card, .ac-materia { box-shadow: none !important; break-inside: avoid; border: 1px solid #ccc; }
+  .ac-materias { grid-template-columns: 1fr 1fr; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
