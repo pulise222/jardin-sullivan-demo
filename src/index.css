@@ -1,0 +1,55 @@
+:root{
+  --black: #090909;
+  --white: #fefefe;
+  --green: #4aff4a;
+  --light-grey: #faf0fa;
+
+  /* blue */
+  --light-blue: #94ddf5;
+  --dark-blue: #101d38;
+  --blue-sea: #142f69;
+  --blue: #29b9e9;
+  --blue-ocean: #036969;
+
+  --green-swamp: #43a886;
+  --menu: #5ffad8;
+  --warning: #ff421c;
+  --bg-one: #dfe8e7;
+  --input: #befafb;
+  --border-radius: 10px;
+  --border-radius-circle: 50%;
+
+
+  --bg: #f6fbfd;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --ring: #cbd5e1;
+  --brand: #1B3158;   /* azul del sistema */
+  --danger: #b91c1c;
+}
+*, button{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html{
+  font-size: 62.5%;
+  /* overflow: hidden; */
+}
+#root {
+  width: 100vw;
+  /* height: 100dvh; */
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #FFF6E7;
+}

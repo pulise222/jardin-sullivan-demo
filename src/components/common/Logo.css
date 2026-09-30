@@ -1,0 +1,55 @@
+/* src/components/common/Logo.css */
+
+.sl-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sl-logo-sun {
+  width: 4.2rem;
+  height: 4.2rem;
+  flex: none; /* no se aplasta aunque falte espacio */
+  transition: transform 0.6s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+/* El sol gira un poquito cuando pasas el mouse sobre cualquier enlace que contenga el logo */
+a:hover > .sl-logo .sl-logo-sun,
+.sl-logo:hover .sl-logo-sun {
+  transform: rotate(25deg) scale(1.08);
+}
+
+.sl-logo-text {
+  color: var(--c-prim, #1b3158);
+  font-family: var(--font-display, "Segoe UI", system-ui, sans-serif);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+/* La palabra "Sullivan" va en naranja */
+.sl-logo-text span {
+  color: var(--c-orange, #ff8a00);
+}
+
+/* Versión para fondos oscuros: texto blanco y "Sullivan" en amarillo */
+.sl-logo--light .sl-logo-text {
+  color: #fff;
+}
+
+.sl-logo--light .sl-logo-text span {
+  color: var(--c-accent, #febf22);
+}
+
+/* En celulares angostos se hace un poco más pequeño para caber junto al botón del menú */
+@media screen and (max-width: 420px) {
+  .sl-logo-sun {
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+
+  .sl-logo-text {
+    font-size: 1.9rem;
+  }
+}

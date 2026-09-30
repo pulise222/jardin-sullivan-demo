@@ -1,0 +1,1169 @@
+/* src/styles/panel.css */
+
+/*
+  ======================================================================
+  SISTEMA DE DISEÑO DE LOS PANELES (Administrador, Profesor, Acudiente)
+  ======================================================================
+  IDEA: una base común para que los tres paneles se sientan una sola plataforma,
+  y un COLOR DE ACENTO distinto por rol que orienta al usuario:
+
+      Administrador → rojo coral      Profesor → celeste      Acudiente → verde
+
+  El acento se activa con el atributo data-role en el contenedor del panel:
+      <div className="pn-layout" data-role="admin">
+  Todo lo que usa var(--pn-accent) cambia de color solo.
+
+  Todas las clases empiezan por "pn-" (panel) para no chocar con los estilos viejos.
+*/
+
+/* ---------- Colores y medidas base ---------- */
+/*
+  PALETA "Petróleo y naranja": el menú lateral es azul petróleo y el naranja vibrante
+  marca lo importante (opción activa, botones, foco). Los colores de apoyo (verde azulado,
+  ámbar, petróleo suave) dan variedad a tarjetas, etiquetas y avatares.
+    --pn-side                  → fondo del menú lateral
+    --pn-accent                → naranja principal (botones, detalles)
+    --pn-accent-strong         → naranja oscuro, legible como TEXTO sobre fondo claro
+    --pn-accent-soft           → naranja muy clarito para fondos suaves
+    --pn-on-accent             → color del texto que va SOBRE el naranja (azul petróleo oscuro)
+*/
+.pn-layout {
+  --pn-ink: #10323b;                       /* texto principal: petróleo muy oscuro */
+  --pn-ink-soft: rgba(16, 50, 59, 0.64);   /* texto secundario */
+  --pn-line: rgba(16, 50, 59, 0.11);       /* líneas y bordes suaves */
+  --pn-bg: #f3f8f8;                        /* fondo del contenido */
+  --pn-card: #ffffff;                      /* fondo de las tarjetas */
+  --pn-side: #0f4c5c;                      /* menú lateral */
+  --pn-radius: 1.8rem;
+  --pn-shadow: 0 1px 2px rgba(16, 50, 59, 0.06), 0 12px 28px -18px rgba(15, 76, 92, 0.4);
+
+  /* Vidrio del menú, manchas de fondo y resplandores: antes fijos, ahora cambian por rol */
+  --pn-glass-a: rgba(15, 76, 92, 0.93);
+  --pn-glass-b: rgba(7, 48, 61, 0.88);
+  --pn-glass-shadow: rgba(7, 40, 52, 0.75);
+  --pn-blob-a: rgba(255, 122, 26, 0.5);
+  --pn-blob-b: rgba(46, 196, 182, 0.42);
+  --pn-glow-a: rgba(46, 196, 182, 0.08);
+  --pn-glow-b: rgba(255, 122, 26, 0.07);
+  --pn-accent-ring: rgba(255, 122, 26, 0.28);
+  --pn-accent-glow: rgba(255, 122, 26, 0.8);
+
+  --pn-side-1: #ff8a2e;                    /* degradado del avatar */
+  --pn-side-2: #e5650e;
+  --pn-accent: #ff7a1a;
+  --pn-accent-strong: #c4540a;
+  --pn-accent-soft: #ffe9d6;
+  --pn-on-accent: #0b2f39;
+
+  /* Colores de apoyo */
+  --pn-teal: #2ec4b6;      --pn-teal-soft: #d8f3ef;    --pn-teal-strong: #0b7f75;
+  --pn-amber: #ffd166;     --pn-amber-soft: #fff1cc;   --pn-amber-strong: #8a6100;
+  --pn-petrol: #0f4c5c;    --pn-petrol-soft: #dce9ec;  --pn-petrol-strong: #0f4c5c;
+}
+
+/*
+  PROFESOR → paleta "Cielo y rosa": menú celeste, rosa como acento, verde lima y amarillo de apoyo.
+  Sobreescribimos los MISMOS tokens que usa el administrador: por eso ningún componente cambia,
+  solo se repinta. (Los nombres --pn-teal/--pn-amber/--pn-petrol se reutilizan: aquí "teal" es verde lima.)
+*/
+.pn-layout[data-role="profesor"] {
+  --pn-ink: #0f2f45;
+  --pn-ink-soft: rgba(15, 47, 69, 0.66);
+  --pn-line: rgba(15, 47, 69, 0.11);
+  --pn-bg: #f2f8fc;
+  --pn-side: #1c8fcb;
+  --pn-shadow: 0 1px 2px rgba(15, 47, 69, 0.06), 0 12px 28px -18px rgba(28, 143, 203, 0.45);
+
+  --pn-glass-a: rgba(28, 143, 203, 0.93);
+  --pn-glass-b: rgba(12, 94, 147, 0.88);
+  --pn-glass-shadow: rgba(10, 70, 110, 0.7);
+  --pn-blob-a: rgba(255, 94, 138, 0.5);
+  --pn-blob-b: rgba(126, 217, 87, 0.42);
+  --pn-glow-a: rgba(126, 217, 87, 0.1);
+  --pn-glow-b: rgba(255, 94, 138, 0.08);
+  --pn-accent-ring: rgba(255, 94, 138, 0.3);
+  --pn-accent-glow: rgba(255, 94, 138, 0.8);
+
+  --pn-side-1: #ff7fa3;
+  --pn-side-2: #ff5e8a;
+  --pn-accent: #ff5e8a;
+  --pn-accent-strong: #c2174f;
+  --pn-accent-soft: #ffe3ec;
+  --pn-on-accent: #0b2a40;
+
+  --pn-teal: #7ed957;      --pn-teal-soft: #dff4d8;    --pn-teal-strong: #2f7d12;
+  --pn-amber: #ffd23f;     --pn-amber-soft: #fff3c2;   --pn-amber-strong: #8a6500;
+  --pn-petrol: #1c8fcb;    --pn-petrol-soft: #d9ecf7;  --pn-petrol-strong: #0f6a9a;
+}
+
+.pn-layout[data-role="acudiente"] {
+  --pn-side: #2d6a4f;
+  --pn-accent: #ff8a5b;
+  --pn-accent-strong: #b34a1f;
+  --pn-accent-soft: #ffe8de;
+}
+
+/* ---------- Estructura: menú lateral + contenido ---------- */
+.pn-layout {
+  display: grid;
+  grid-template-columns: 27rem minmax(0, 1fr); /* minmax(0,…) deja que el contenido se encoja sin desbordar */
+  width: 100%;
+  min-height: 100vh;
+  background: var(--pn-bg);
+  color: var(--pn-ink);
+  font-family: var(--font-body, "Segoe UI", system-ui, sans-serif);
+  font-size: 1.5rem;
+}
+
+/* ---------- Menú lateral: panel flotante de "vidrio" ---------- */
+/*
+  IDEA: en vez de una barra pegada al borde, el menú es una cápsula que flota con margen,
+  esquinas muy redondeadas y un fondo translúcido con desenfoque (backdrop-filter = efecto vidrio).
+  Para que el vidrio se note, detrás hay manchas de color fijas (ver .pn-layout más abajo).
+  Las opciones son píldoras y cada ícono vive dentro de un círculo.
+*/
+.pn-sidebar {
+  position: sticky;
+  top: 1.6rem;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+  height: calc(100vh - 3.2rem);
+  margin: 1.6rem 0 1.6rem 1.6rem;
+  padding: 2.4rem 1.6rem 1.6rem;
+  border-radius: 3.4rem;
+  /* degradado petróleo translúcido + desenfoque de lo que hay detrás = vidrio */
+  background: linear-gradient(165deg, var(--pn-glass-a), var(--pn-glass-b));
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 40px 70px -34px var(--pn-glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  color: #fff;
+  overflow-x: hidden;
+  overflow-y: auto;
+  isolation: isolate;
+}
+
+/* Reflejo de luz en la parte de arriba (da la sensación de cristal) */
+.pn-sidebar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -14rem;
+  left: -10rem;
+  width: 34rem;
+  height: 30rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.pn-brand {
+  display: block;
+  padding: 0 1rem;
+  text-decoration: none;
+}
+
+.pn-nav-label {
+  margin: 0 0 0.8rem;
+  padding: 0 1.4rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pn-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Opción del menú: píldora completa (radio enorme) */
+.pn-nav button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  padding: 0.7rem 1.6rem 0.7rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 10rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+/* El ícono va dentro de un círculo */
+.pn-nav-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 1.5rem;
+  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pn-nav button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.pn-nav button:hover .pn-nav-ico {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Opción activa: píldora de vidrio más clara y círculo naranja con brillo */
+.pn-nav button.is-active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-weight: 700;
+  transform: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.pn-nav button.is-active .pn-nav-ico {
+  background: var(--pn-accent);
+  color: var(--pn-on-accent);
+  box-shadow: 0 0 0 4px var(--pn-accent-ring), 0 8px 18px -6px var(--pn-accent-glow);
+}
+
+/* Anillo de foco: blanco dentro del menú (oscuro) y naranja en el resto */
+.pn-sidebar button:focus-visible {
+  outline: 0.3rem solid #fff;
+  outline-offset: 0.2rem;
+}
+
+.pn-icon-btn:focus-visible,
+.pn-btn:focus-visible,
+.pn-menu-toggle:focus-visible {
+  outline: 0.3rem solid var(--pn-accent);
+  outline-offset: 0.2rem;
+}
+
+/* Pie del menú: tarjeta de usuario en forma de píldora */
+.pn-sidebar-foot {
+  margin-top: auto;
+}
+
+.pn-user {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 0.7rem 0.7rem 0.7rem 0.7rem;
+  border-radius: 10rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Avatar (también se usa en las tablas) */
+.pn-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 4.4rem;
+  height: 4.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pn-side-1), var(--pn-side-2));
+  color: #fff;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.pn-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pn-user-name {
+  display: block;
+  overflow: hidden;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pn-user-role {
+  display: block;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* El botón de cerrar sesión, redondo y translúcido */
+.pn-sidebar .pn-icon-btn {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.pn-sidebar .pn-icon-btn:hover {
+  background: var(--pn-accent);
+  color: var(--pn-on-accent);
+}
+
+/* Manchas de color FIJAS detrás del menú: es lo que el vidrio desenfoca y deja ver */
+.pn-layout {
+  background:
+    radial-gradient(38rem 38rem at 0% 100%, var(--pn-blob-a), transparent 70%),
+    radial-gradient(34rem 34rem at 8% 6%, var(--pn-blob-b), transparent 70%),
+    var(--pn-bg);
+  background-attachment: fixed;
+}
+
+/* ---------- Contenido principal ---------- */
+.pn-main {
+  min-width: 0;
+  padding: 3rem 3.6rem 5rem;
+}
+
+.pn-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.6rem 2.4rem;
+  margin-bottom: 2.8rem;
+}
+
+.pn-header h1 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: clamp(2.8rem, 2.4vw + 1.4rem, 3.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.pn-header p {
+  margin: 0;
+  color: var(--pn-ink-soft);
+  font-size: 1.5rem;
+}
+
+/* Botón del menú (solo celular) */
+.pn-menu-toggle {
+  display: none;
+  place-items: center;
+  width: 4.4rem;
+  height: 4.4rem;
+  border: 1px solid var(--pn-line);
+  border-radius: 1.4rem;
+  background: var(--pn-card);
+  color: var(--pn-ink);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+/* ---------- Tarjetas de resumen (KPI) ---------- */
+.pn-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1.6rem;
+  margin-bottom: 2.8rem;
+}
+
+.pn-kpi {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 2rem;
+  border-radius: var(--pn-radius);
+  background: var(--pn-card);
+  border: 1px solid var(--pn-line);
+  box-shadow: var(--pn-shadow);
+}
+
+.pn-kpi-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 5.2rem;
+  height: 5.2rem;
+  border-radius: 1.6rem;
+  background: var(--pn-accent-soft);
+  color: var(--pn-accent-strong);
+  font-size: 2.2rem;
+}
+
+.pn-kpi strong {
+  display: block;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.pn-kpi span {
+  color: var(--pn-ink-soft);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+/* ---------- Tarjeta contenedora, barra de herramientas y botones ---------- */
+.pn-card {
+  border-radius: var(--pn-radius);
+  background: var(--pn-card);
+  border: 1px solid var(--pn-line);
+  box-shadow: var(--pn-shadow);
+}
+
+.pn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 4.6rem;
+  padding: 0 2.2rem;
+  border: 0;
+  border-radius: 1.4rem;
+  background: var(--pn-accent);
+  color: var(--pn-on-accent);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.2s ease;
+}
+
+.pn-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px -10px var(--pn-accent);
+  filter: brightness(1.04);
+}
+
+/* Botones de ícono (editar / eliminar) */
+.pn-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 3.8rem;
+  height: 3.8rem;
+  border: 0;
+  border-radius: 1.1rem;
+  background: rgba(16, 50, 59, 0.07);
+  color: var(--pn-ink);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.pn-icon-btn:hover {
+  background: var(--pn-ink);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.pn-icon-btn.is-danger {
+  background: #fde9e6;
+  color: #c4291a;
+}
+
+.pn-icon-btn.is-danger:hover {
+  background: #d63a2a;
+  color: #fff;
+}
+
+/* ---------- Tabla ---------- */
+.pn-table-wrap {
+  overflow-x: auto;          /* si la tabla es ancha, se desliza dentro de la tarjeta (no rompe la página) */
+  border-radius: var(--pn-radius);
+}
+
+.pn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.45rem;
+}
+
+.pn-table thead th {
+  padding: 1.4rem 1.8rem;
+  background: #f6fafa;
+  border-bottom: 1px solid var(--pn-line);
+  color: var(--pn-ink-soft);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pn-table tbody td {
+  padding: 1.4rem 1.8rem;
+  border-bottom: 1px solid var(--pn-line);
+  vertical-align: middle;
+}
+
+.pn-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pn-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.pn-table tbody tr:hover {
+  background: #f7fbfb;
+}
+
+/* Celda de persona: avatar + nombre + dato secundario */
+.pn-person {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  min-width: 22rem;
+}
+
+.pn-person .pn-avatar {
+  width: 4.2rem;
+  height: 4.2rem;
+  background: var(--pn-accent-soft);
+  color: var(--pn-accent-strong);
+  font-size: 1.6rem;
+}
+
+.pn-person strong {
+  display: block;
+  font-weight: 700;
+}
+
+.pn-person small {
+  color: var(--pn-ink-soft);
+  font-size: 1.25rem;
+}
+
+/* Chips (etiquetas pequeñas) */
+.pn-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 1rem;
+  border-radius: 10rem;
+  background: rgba(16, 50, 59, 0.08);
+  color: var(--pn-ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pn-chip.is-accent {
+  background: var(--pn-accent-soft);
+  color: var(--pn-accent-strong);
+}
+
+.pn-muted {
+  color: var(--pn-ink-soft);
+}
+
+.pn-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+/* ---------- Estados: cargando / error / vacío ---------- */
+.pn-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 5rem 2rem;
+  color: var(--pn-ink-soft);
+  text-align: center;
+}
+
+.pn-state i {
+  color: var(--pn-accent);
+  font-size: 3.4rem;
+}
+
+.pn-state strong {
+  color: var(--pn-ink);
+  font-size: 1.8rem;
+}
+
+.pn-spinner {
+  width: 3.6rem;
+  height: 3.6rem;
+  border: 4px solid var(--pn-line);
+  border-top-color: var(--pn-accent);
+  border-radius: 50%;
+  animation: pnSpin 0.8s linear infinite;
+}
+
+@keyframes pnSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Aparición suave del contenido */
+.pn-fade {
+  animation: pnFade 0.5s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+@keyframes pnFade {
+  from {
+    opacity: 0;
+    transform: translateY(1.2rem);
+  }
+}
+
+/* ---------- Celular y tablet: el menú lateral pasa a ser un panel que se desliza ---------- */
+.pn-backdrop {
+  display: none;
+}
+
+@media screen and (max-width: 960px) {
+  .pn-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pn-sidebar {
+    position: fixed;
+    z-index: 60;
+    top: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+    height: auto;
+    margin: 0;
+    width: min(30rem, 86vw);
+    transform: translateX(-115%);
+    transition: transform 0.35s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+
+  .pn-layout.is-menu-open .pn-sidebar {
+    transform: translateX(0);
+  }
+
+  .pn-layout.is-menu-open .pn-backdrop {
+    display: block;
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    background: rgba(8, 30, 38, 0.55);
+    backdrop-filter: blur(3px);
+  }
+
+  .pn-menu-toggle {
+    display: grid;
+  }
+
+  .pn-main {
+    padding: 2rem 1.6rem 4rem;
+  }
+
+  .pn-header {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .pn-header-text {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pn-fade,
+  .pn-spinner,
+  .pn-sidebar {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ---------- Barra de herramientas de las tablas (buscador + botón) ---------- */
+.pn-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin-bottom: 1.8rem;
+}
+
+.pn-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 28rem;
+  max-width: 46rem;
+}
+
+.pn-search i {
+  position: absolute;
+  left: 1.6rem;
+  color: var(--pn-ink-soft);
+  font-size: 1.5rem;
+  pointer-events: none;
+}
+
+.pn-search input {
+  width: 100%;
+  min-height: 4.8rem;
+  padding: 0 1.6rem 0 4.4rem;
+  border: 1.5px solid var(--pn-line);
+  border-radius: 1.4rem;
+  background: var(--pn-card);
+  color: var(--pn-ink);
+  font: inherit;
+  font-size: 1.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pn-search input::placeholder {
+  color: var(--pn-ink-soft);
+}
+
+.pn-search input:focus {
+  outline: none;
+  border-color: var(--pn-accent);
+  box-shadow: 0 0 0 4px var(--pn-accent-soft);
+}
+
+@media screen and (max-width: 560px) {
+  .pn-toolbar .pn-btn {
+    width: 100%;
+  }
+}
+
+/* ---------- Formularios dentro de ventanas emergentes (modal) ---------- */
+/* Tarjeta blanca del formulario: cabecera con ícono, campos en 2 columnas y botones abajo */
+.pn-modal {
+  width: min(100%, 64rem);
+  margin: 0 auto;
+  padding: 2.8rem;
+  border-radius: 2.6rem;
+  background: var(--pn-card);
+  color: var(--pn-ink);
+  font-family: var(--font-body, "Segoe UI", system-ui, sans-serif);
+  box-shadow: 0 40px 90px -30px rgba(8, 30, 38, 0.6);
+  animation: pnPop 0.35s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes pnPop {
+  from {
+    opacity: 0;
+    transform: translateY(1.6rem) scale(0.97);
+  }
+}
+
+.pn-modal-head {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  margin-bottom: 2.4rem;
+  padding-right: 5rem; /* deja libre el botón de cerrar */
+}
+
+.pn-modal-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 5.2rem;
+  height: 5.2rem;
+  border-radius: 1.6rem;
+  background: var(--pn-accent-soft);
+  color: var(--pn-accent-strong);
+  font-size: 2.2rem;
+}
+
+.pn-modal-head h2 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pn-modal-head p {
+  margin: 0;
+  color: var(--pn-ink-soft);
+  font-size: 1.4rem;
+}
+
+.pn-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.8rem;
+}
+
+.pn-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.pn-field label {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.pn-field input,
+.pn-field select,
+.pn-field textarea {
+  width: 100%;
+  min-height: 4.8rem;
+  padding: 1rem 1.4rem;
+  border: 1.5px solid var(--pn-line);
+  border-radius: 1.3rem;
+  background: #fff;
+  color: var(--pn-ink);
+  font: inherit;
+  font-size: 1.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pn-field select {
+  appearance: none;
+  padding-right: 4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2310323B' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.3rem center;
+}
+
+.pn-field input:hover,
+.pn-field select:hover {
+  border-color: rgba(16, 50, 59, 0.35);
+}
+
+.pn-field input:focus,
+.pn-field select:focus,
+.pn-field textarea:focus {
+  outline: none;
+  border-color: var(--pn-accent);
+  box-shadow: 0 0 0 4px var(--pn-accent-soft);
+}
+
+.pn-field input[aria-invalid="true"],
+.pn-field select[aria-invalid="true"] {
+  border-color: #d63a2a;
+  background: #fff8f6;
+}
+
+.pn-field-error {
+  margin: 0;
+  color: #b3261a;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.pn-form-alert {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+  padding: 1.2rem 1.4rem;
+  border-radius: 1.3rem;
+  background: #fdece8;
+  border: 1px solid rgba(214, 58, 42, 0.35);
+  color: #a3261a;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.pn-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 2.6rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--pn-line);
+}
+
+.pn-btn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+  transform: none;
+  box-shadow: none;
+}
+
+.pn-btn-ghost {
+  min-height: 4.6rem;
+  padding: 0 2.2rem;
+  border: 1.5px solid var(--pn-line);
+  border-radius: 1.4rem;
+  background: transparent;
+  color: var(--pn-ink);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.pn-btn-ghost:hover {
+  background: rgba(16, 50, 59, 0.06);
+}
+
+.pn-btn-ghost:focus-visible {
+  outline: 0.3rem solid var(--pn-accent);
+  outline-offset: 0.2rem;
+}
+
+.pn-spinner-sm {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 3px solid rgba(11, 47, 57, 0.25);
+  border-top-color: var(--pn-on-accent);
+  border-radius: 50%;
+  animation: pnSpin 0.8s linear infinite;
+}
+
+@media screen and (min-width: 640px) {
+  .pn-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pn-span-2 {
+    grid-column: 1 / -1;
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .pn-modal {
+    padding: 2rem 1.6rem;
+  }
+
+  .pn-modal-foot {
+    flex-direction: column-reverse;
+  }
+
+  .pn-modal-foot > * {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pn-modal,
+  .pn-spinner-sm {
+    animation: none;
+  }
+}
+
+/* ---------- Colores de apoyo en tarjetas, etiquetas y botones ---------- */
+/* Fondo del contenido con un resplandor suave de dos colores */
+.pn-main {
+  background:
+    radial-gradient(60rem 28rem at 100% 0%, var(--pn-glow-a), transparent 70%),
+    radial-gradient(50rem 26rem at 0% 0%, var(--pn-glow-b), transparent 70%);
+}
+
+/* Cada tarjeta de resumen con su propio color */
+.pn-kpi:nth-child(2) .pn-kpi-ico { background: var(--pn-teal-soft); color: var(--pn-teal-strong); }
+.pn-kpi:nth-child(3) .pn-kpi-ico { background: var(--pn-amber-soft); color: var(--pn-amber-strong); }
+.pn-kpi:nth-child(4) .pn-kpi-ico { background: var(--pn-petrol-soft); color: var(--pn-petrol-strong); }
+
+/* Variantes de etiquetas */
+.pn-chip.is-teal   { background: var(--pn-teal-soft);   color: var(--pn-teal-strong); }
+.pn-chip.is-amber  { background: var(--pn-amber-soft);  color: var(--pn-amber-strong); }
+.pn-chip.is-petrol { background: var(--pn-petrol-soft); color: var(--pn-petrol-strong); }
+
+/* Avatares de las tablas: cuatro colores que se reparten según la inicial del nombre */
+.pn-person .pn-avatar.t0 { background: var(--pn-accent-soft); color: var(--pn-accent-strong); }
+.pn-person .pn-avatar.t1 { background: var(--pn-teal-soft);   color: var(--pn-teal-strong); }
+.pn-person .pn-avatar.t2 { background: var(--pn-amber-soft);  color: var(--pn-amber-strong); }
+.pn-person .pn-avatar.t3 { background: var(--pn-petrol-soft); color: var(--pn-petrol-strong); }
+
+/* Botón de editar en verde azulado; el de eliminar sigue en rojo */
+.pn-icon-btn.is-edit { background: var(--pn-teal-soft); color: var(--pn-teal-strong); }
+.pn-icon-btn.is-edit:hover { background: var(--pn-teal-strong); color: #fff; }
+
+/* ---------- Tabla: que las acciones siempre se vean ---------- */
+/* La última columna (Acciones) se queda pegada al borde derecho mientras el resto se desliza */
+.pn-table th:last-child,
+.pn-table td:last-child {
+  position: sticky;
+  right: 0;
+  background: #fff;
+  box-shadow: -10px 0 14px -12px rgba(16, 50, 59, 0.35);
+}
+
+.pn-table thead th:last-child {
+  background: #f6fafa;
+}
+
+.pn-table tbody tr:hover td:last-child {
+  background: #f7fbfb;
+}
+
+/* La dirección larga se corta con "…" en vez de ensanchar la tabla */
+.pn-table td.pn-clip {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ======================================================================
+   PIEZAS DE LAS VISTAS DE ADMINISTRACIÓN (personas, materias, asignaciones, eventos, importar)
+   ====================================================================== */
+
+/* ---------- Botones: variantes ---------- */
+.pn-btn.is-small,
+.pn-icon-btn.is-small { min-height: 3.6rem; padding: 0 1.4rem; font-size: 1.3rem; }
+.pn-icon-btn.is-small { width: 3.4rem; height: 3.4rem; min-height: 0; padding: 0; }
+
+.pn-btn.is-danger { background: #d63a2a; color: #fff; }
+.pn-btn.is-danger:hover { box-shadow: 0 12px 22px -10px #d63a2a; }
+
+.pn-toolbar-actions { display: flex; flex-wrap: wrap; gap: 1rem; }
+.pn-toolbar-note { margin: 0; color: var(--pn-ink-soft); font-size: 1.4rem; font-weight: 600; }
+.pn-toolbar-note i { margin-right: 0.8rem; color: var(--pn-accent); }
+
+.pn-btn-ghost i { margin-right: 0.8rem; }
+
+/* Botón de texto con ícono (p. ej. "Asignar acudiente") */
+.pn-link-btn {
+  display: inline-flex; align-items: center; gap: 0.8rem;
+  padding: 0.8rem 1.4rem; border: 1.5px dashed var(--pn-accent); border-radius: 1.1rem;
+  background: var(--pn-accent-soft); color: var(--pn-accent-strong);
+  font: inherit; font-size: 1.3rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.pn-link-btn:hover { background: var(--pn-accent); color: var(--pn-on-accent); transform: translateY(-2px); }
+.pn-link-btn:focus-visible { outline: 0.3rem solid var(--pn-accent); outline-offset: 0.2rem; }
+
+/* ---------- Ventana de confirmación ---------- */
+.pn-confirm { width: min(100%, 44rem); text-align: center; }
+.pn-confirm-ico {
+  display: grid; place-items: center; width: 6.4rem; height: 6.4rem; margin: 0 auto 1.6rem;
+  border-radius: 50%; background: var(--pn-accent-soft); color: var(--pn-accent-strong); font-size: 2.6rem;
+}
+.pn-confirm-ico.is-danger { background: #fde9e6; color: #c4291a; }
+.pn-confirm h2 { margin: 0 0 0.8rem; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; }
+.pn-confirm p { margin: 0; color: var(--pn-ink-soft); font-size: 1.5rem; line-height: 1.55; }
+.pn-confirm-foot { justify-content: center; }
+
+/* ---------- Acudiente en la tabla ---------- */
+.pn-guardian { display: flex; align-items: center; gap: 1.1rem; min-width: 22rem; }
+.pn-guardian strong { display: block; font-weight: 700; }
+.pn-guardian small, .pn-result small { display: block; color: var(--pn-ink-soft); font-size: 1.2rem; }
+.pn-mini-avatar {
+  display: grid; place-items: center; flex: none; width: 3.4rem; height: 3.4rem; border-radius: 50%;
+  background: var(--pn-teal-soft); color: var(--pn-teal-strong); font-size: 1.4rem; font-weight: 800; text-transform: uppercase;
+}
+
+/* ---------- Buscador de acudientes ---------- */
+.pn-search-block { max-width: none; flex: none; margin-bottom: 1.6rem; }
+.pn-results { display: flex; flex-direction: column; gap: 0.8rem; min-height: 14rem; max-height: 34rem; overflow-y: auto; }
+.pn-results-hint { margin: 0; padding: 3rem 1rem; color: var(--pn-ink-soft); font-size: 1.4rem; text-align: center; }
+.pn-result {
+  display: flex; align-items: center; gap: 1.2rem; padding: 1rem 1.2rem;
+  border: 1px solid var(--pn-line); border-radius: 1.4rem; background: #fff;
+}
+.pn-result > div { flex: 1; min-width: 0; }
+.pn-result strong { display: block; font-weight: 700; }
+
+/* ---------- Datos de solo lectura dentro de un formulario ---------- */
+.pn-readonly {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.2rem;
+  margin-bottom: 2rem; padding: 1.4rem 1.6rem; border-radius: 1.4rem; background: #f3f8f8;
+}
+.pn-readonly span { display: block; color: var(--pn-ink-soft); font-size: 1.15rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.pn-readonly strong { display: block; overflow-wrap: anywhere; font-size: 1.4rem; font-weight: 700; }
+
+.pn-field-hint { margin: 0; color: var(--pn-ink-soft); font-size: 1.25rem; }
+.pn-one-col { grid-template-columns: 1fr !important; }
+
+/* ---------- Dos columnas: lista + formulario (materias, asignaciones) ---------- */
+.pn-split { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; }
+.pn-panel { padding: 2.4rem; }
+.pn-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.8rem; }
+.pn-panel h2 { margin: 0; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.pn-panel h3 { margin: 2.4rem 0 1rem; font-size: 1.6rem; }
+.pn-form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+
+.pn-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 0; padding: 0; list-style: none; }
+.pn-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.2rem;
+  padding: 1rem 1.2rem; border: 1px solid var(--pn-line); border-radius: 1.4rem; background: #fff;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.pn-list li:hover { border-color: rgba(16, 50, 59, 0.25); }
+.pn-list li.is-selected, .pn-table tr.is-selected { background: var(--pn-accent-soft); border-color: var(--pn-accent); }
+.pn-list .pn-person { min-width: 0; }
+.pn-list .pn-avatar { font-size: 1.5rem; }
+
+@media screen and (min-width: 1100px) {
+  .pn-split { grid-template-columns: minmax(0, 1.5fr) minmax(32rem, 1fr); }
+  .pn-split-form-first { grid-template-columns: minmax(32rem, 1fr) minmax(0, 1.8fr); }
+  .pn-sticky { position: sticky; top: 2.4rem; }
+}
+
+/* ---------- Eventos: tarjetas ---------- */
+.pn-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr)); gap: 1.8rem; margin: 0; padding: 0; list-style: none; }
+.pn-event { overflow: hidden; border-radius: var(--pn-radius); background: var(--pn-card); border: 1px solid var(--pn-line); box-shadow: var(--pn-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.pn-event:hover { transform: translateY(-4px); box-shadow: 0 20px 36px -20px rgba(15, 76, 92, 0.55); }
+.pn-event-media { display: grid; place-items: center; aspect-ratio: 16 / 9; color: rgba(255, 255, 255, 0.85); font-size: 3.4rem; background: var(--pn-petrol); }
+.pn-event-media.t1 { background: var(--pn-teal-strong); }
+.pn-event-media.t2 { background: var(--pn-accent-strong); }
+.pn-event-media.t3 { background: #6b5b95; }
+.pn-event-media img { width: 100%; height: 100%; object-fit: cover; }
+.pn-event-body { display: flex; flex-direction: column; align-items: flex-start; gap: 0.9rem; padding: 1.8rem; }
+.pn-event-body h3 { margin: 0; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+.pn-event-body p { display: -webkit-box; margin: 0; overflow: hidden; color: var(--pn-ink-soft); font-size: 1.4rem; line-height: 1.5; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; }
+.pn-event-body .pn-actions { margin-top: 0.6rem; }
+
+/* ---------- Zona para subir archivos / imágenes ---------- */
+.pn-drop {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+  min-height: 14rem; overflow: hidden; border: 2px dashed rgba(16, 50, 59, 0.28); border-radius: 1.6rem;
+  background: #f7fbfb; color: var(--pn-ink-soft); font-size: 1.4rem; font-weight: 600; text-align: center; cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.pn-drop:hover, .pn-drop.is-dragging { border-color: var(--pn-accent); background: var(--pn-accent-soft); }
+.pn-drop i { color: var(--pn-accent); font-size: 3.2rem; }
+.pn-drop img { width: 100%; max-height: 24rem; object-fit: cover; }
+.pn-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.pn-drop-big { min-height: 22rem; flex-direction: row; gap: 2rem; padding: 2rem; }
+.pn-drop-big i { font-size: 5rem; }
+.pn-drop-big strong { display: block; color: var(--pn-ink); font-size: 1.8rem; }
+.pn-drop-big small { display: block; margin-top: 0.4rem; font-size: 1.3rem; font-weight: 500; }
+
+/* ---------- Pantalla completa (importar) ---------- */
+.pn-layout.pn-solo { display: block; }
+.pn-narrow { width: min(100%, 92rem); margin: 0 auto; }
+.pn-narrow > * + * { margin-top: 2rem; }
+.pn-back {
+  display: inline-flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1.6rem; border-radius: 10rem;
+  background: rgba(16, 50, 59, 0.07); color: var(--pn-ink); font-size: 1.4rem; font-weight: 700; text-decoration: none;
+}
+.pn-back:hover { background: rgba(16, 50, 59, 0.14); }
+.pn-result h2 i { margin-right: 0.8rem; color: var(--pn-teal-strong); }
+.pn-result.is-error h2 i { color: #c4291a; }
+.pn-result pre { margin: 1rem 0 0; padding: 1.4rem; overflow: auto; border-radius: 1.2rem; background: #f3f8f8; font-size: 1.25rem; }
+.pn-bullets { margin: 1rem 0 0; padding-left: 2rem; line-height: 1.9; font-size: 1.4rem; }
+.pn-bullets code, .pn-muted code, .pn-panel p code {
+  padding: 0.15rem 0.6rem; border-radius: 0.6rem; background: var(--pn-petrol-soft); color: var(--pn-petrol-strong); font-size: 1.25rem;
+}
+
+@media screen and (max-width: 560px) {
+  .pn-panel { padding: 1.8rem; }
+  .pn-drop-big { flex-direction: column; }
+  .pn-form-actions > * { flex: 1; }
+}

@@ -1,0 +1,102 @@
+/* src/components/views/Profe/css/Profe.css
+   Estilos PROPIOS del módulo profesor (prefijo "pf-"). Todo lo demás viene de src/styles/panel.css
+   y usa los colores de la paleta "cielo y rosa" a través de las variables --pn-*. */
+
+.pf-muted { color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 500; }
+
+/* ---------- Inicio: tarjeta de bienvenida ---------- */
+.pf-hero {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
+  margin-bottom: 2rem; padding: 2.8rem 3rem; border-radius: var(--pn-radius);
+  background: linear-gradient(135deg, var(--pn-side-2), var(--pn-side-1));
+  color: var(--pn-on-accent); box-shadow: var(--pn-shadow);
+}
+.pf-hero h2 { margin: 0.2rem 0 0.6rem; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 3rem; font-weight: 800; letter-spacing: -0.02em; }
+.pf-hero p { margin: 0; font-size: 1.5rem; }
+.pf-hero .pf-hero-kicker { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
+/* El botón va sobre rosa: lo hacemos oscuro para que se lea */
+.pf-hero .pn-btn { background: var(--pn-ink); color: #fff; }
+
+/* ---------- Mis cursos: tarjetas ---------- */
+.pf-course {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; padding: 2.2rem;
+  border: 1px solid var(--pn-line); border-radius: var(--pn-radius); background: var(--pn-card);
+  box-shadow: var(--pn-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.pf-course:hover { transform: translateY(-4px); }
+.pf-course h3 { margin: 0; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+.pf-course p { margin: 0; color: var(--pn-ink-soft); font-size: 1.4rem; line-height: 1.5; }
+.pf-course .pn-btn { margin-top: auto; }
+.pf-course-ico { display: grid; place-items: center; width: 5rem; height: 5rem; border-radius: 1.6rem; font-size: 2.2rem; }
+.pf-course-ico.t0 { background: var(--pn-accent-soft); color: var(--pn-accent-strong); }
+.pf-course-ico.t1 { background: var(--pn-teal-soft); color: var(--pn-teal-strong); }
+.pf-course-ico.t2 { background: var(--pn-amber-soft); color: var(--pn-amber-strong); }
+.pf-course-ico.t3 { background: var(--pn-petrol-soft); color: var(--pn-petrol-strong); }
+
+/* ---------- Detalle de curso: encabezado y pestañas ---------- */
+.pf-detail-head { display: flex; align-items: center; flex-wrap: wrap; gap: 1.6rem; margin-bottom: 2rem; }
+.pf-detail-head h2 { margin: 0 0 0.4rem; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2.6rem; font-weight: 800; letter-spacing: -0.02em; }
+
+.pf-tabs { display: inline-flex; gap: 0.4rem; margin-bottom: 2rem; padding: 0.5rem; border-radius: 10rem; background: var(--pn-card); border: 1px solid var(--pn-line); box-shadow: var(--pn-shadow); max-width: 100%; overflow-x: auto; }
+.pf-tabs button {
+  display: inline-flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1.8rem; border: 0; border-radius: 10rem;
+  background: transparent; color: var(--pn-ink-soft); font: inherit; font-size: 1.4rem; font-weight: 700; white-space: nowrap; cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.pf-tabs button:hover { color: var(--pn-ink); background: var(--pn-line); }
+.pf-tabs button.is-active { background: var(--pn-accent); color: var(--pn-on-accent); }
+.pf-tabs-sm { margin-bottom: 1.6rem; }
+.pf-tabs-sm button { padding: 0.6rem 1.4rem; font-size: 1.3rem; }
+
+/* ---------- Barras de herramientas internas ---------- */
+.pf-toolbar { align-items: center; }
+.pf-toolbar h2 { margin: 0; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2rem; font-weight: 800; }
+.pf-date { display: inline-flex; align-items: center; gap: 0.8rem; color: var(--pn-ink-soft); font-size: 1.3rem; font-weight: 700; }
+
+/* Campos sueltos dentro de tablas y barras (los de formulario usan .pn-field) */
+.pf-input {
+  padding: 0.8rem 1.2rem; border: 1px solid var(--pn-line); border-radius: 1.2rem; background: #fff;
+  color: var(--pn-ink); font: inherit; font-size: 1.4rem;
+}
+.pf-input:focus { outline: 2px solid var(--pn-accent); outline-offset: 1px; }
+.pf-nota { width: 7rem; text-align: center; font-weight: 700; }
+
+.pn-btn-small { padding: 0.6rem 1.2rem; font-size: 1.25rem; }
+.pf-link-btn { border: 0; background: none; color: var(--pn-accent-strong); font: inherit; font-size: 1.25rem; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.pf-danger { color: var(--pn-accent-strong); }
+
+/* Tablas tipo cuadrícula (asistencia, notas): la última columna NO debe quedarse pegada como en las del admin */
+.pn-table.pf-grid th:last-child,
+.pn-table.pf-grid td:last-child { position: static; box-shadow: none; background: inherit; }
+.pn-table.pf-grid thead th:last-child { background: #f6fafa; }
+.pn-table.pf-grid td { white-space: nowrap; }
+.pf-attendance .pn-table-wrap, .pf-notas .pn-table-wrap { margin-top: 1.6rem; }
+.pf-sub { margin: 0 0 1.4rem; font-size: 1.6rem; }
+
+/* ---------- Actividades ---------- */
+.pf-activities { display: flex; flex-direction: column; gap: 2rem; }
+.pf-act-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr)); gap: 1.6rem; margin: 0; padding: 0; list-style: none; }
+.pf-act {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; padding: 2rem;
+  border: 1px solid var(--pn-line); border-radius: var(--pn-radius); background: var(--pn-card); box-shadow: var(--pn-shadow);
+}
+.pf-act.is-selected { border-color: var(--pn-accent); box-shadow: 0 0 0 3px var(--pn-accent-ring); }
+.pf-act h3 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+.pf-act p { display: -webkit-box; margin: 0; overflow: hidden; color: var(--pn-ink-soft); font-size: 1.4rem; line-height: 1.5; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; }
+.pf-act-meta { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.pf-act .pn-btn-ghost { margin-top: auto; }
+
+/* ---------- Perfil ---------- */
+.pf-profile { display: flex; flex-direction: column; gap: 2rem; }
+.pf-profile-head { display: flex; align-items: center; flex-wrap: wrap; gap: 2rem; padding: 2.4rem; }
+.pf-photo { width: 9rem; height: 9rem; overflow: hidden; border-radius: 50%; border: 4px solid var(--pn-accent-soft); background: var(--pn-line); flex: none; }
+.pf-photo img { width: 100%; height: 100%; object-fit: cover; }
+.pf-profile-name { flex: 1; min-width: 16rem; }
+.pf-profile-name h2 { margin: 0 0 0.6rem; font-family: var(--font-display, "Segoe UI", sans-serif); font-size: 2.6rem; font-weight: 800; letter-spacing: -0.02em; }
+.pf-datos { display: grid; gap: 1.4rem; }
+.pf-dato span { display: block; color: var(--pn-ink-soft); font-size: 1.15rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.pf-dato strong { display: block; overflow-wrap: anywhere; font-size: 1.5rem; font-weight: 700; }
+
+/* ---------- Detalle de evento (ventana) ---------- */
+.pf-event-img { width: 100%; max-height: 26rem; margin-bottom: 1.6rem; border-radius: 1.6rem; object-fit: cover; }
+.pf-event-desc { margin: 0 0 1rem; color: var(--pn-ink-soft); font-size: 1.5rem; line-height: 1.6; }

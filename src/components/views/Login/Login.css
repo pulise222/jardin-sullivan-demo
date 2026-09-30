@@ -1,0 +1,901 @@
+/* src/components/views/Login/Login.css */
+
+/*
+  Inicio de sesión. Conserva la idea original: el logo a la izquierda y una tarjeta
+  amarilla a la derecha (estilo Facebook). Mejoras: tipografía de la landing, esquinas
+  más suaves, detalles en los campos y una ventana con cuentas de prueba.
+  Todas las clases empiezan por "lg-" para no chocar con estilos de otras páginas.
+*/
+
+.lg-page {
+  position: relative;
+  /* flex en columna + justify-content: center → el contenido queda centrado y
+     el espacio sobrante se reparte arriba y abajo por igual (antes, con grid,
+     se repartía entre las filas y dejaba un hueco grande al final) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 11rem 1.6rem 3rem;
+  /* cielo: crema arriba y un amarillo clarito hacia el horizonte */
+  background: linear-gradient(180deg, #fff8ea 0%, #fff3d6 55%, #ffeec2 100%);
+  color: var(--c-prim, #1b3158);
+  font-family: var(--font-body, "Segoe UI", system-ui, sans-serif);
+}
+
+/* Botón "Inicio" de arriba a la izquierda */
+.lg-home {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 2rem;
+  border-radius: 10rem;
+  background: var(--c-prim, #0f2358);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.3s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), gap 0.3s ease, color 0.2s ease;
+}
+
+.lg-home:hover {
+  gap: 1.2rem;
+  color: #ffe88a;
+  transform: scale(1.05);
+}
+
+/* Logo + tarjeta */
+.lg-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3.2rem;
+  width: 100%;
+  max-width: 96rem;
+}
+
+.lg-logo {
+  animation: lgRise 0.9s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+.lg-logo img {
+  display: block;
+  /* Logo cuadrado: en celular ocupa hasta el 70% del ancho (máx. 30rem) */
+  width: min(30rem, 70vw);
+  height: auto;
+  filter: drop-shadow(0 18px 24px rgba(27, 49, 88, 0.18));
+}
+
+.lg-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: min(100%, 42rem);
+}
+
+/* ---------- Tarjeta amarilla ---------- */
+.lg-card {
+  width: 100%;
+  padding: 3rem 2.6rem 2.6rem;
+  border-radius: 2.8rem;
+  background: #f9d644;
+  box-shadow: 0 30px 60px -30px rgba(27, 49, 88, 0.45), 0 4px 10px rgba(0, 0, 0, 0.08);
+  animation: lgRise 0.9s 0.1s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+@keyframes lgRise {
+  from {
+    opacity: 0;
+    transform: translateY(2.4rem);
+  }
+}
+
+.lg-card h1 {
+  margin: 0 0 2.2rem;
+  text-align: center;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--c-prim, #1b3158);
+}
+
+.lg-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.lg-card label {
+  margin-bottom: 0.6rem;
+  color: var(--c-prim, #1b3158);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.lg-card input {
+  width: 100%;
+  min-height: 5rem;
+  margin-bottom: 1.8rem;
+  padding: 1rem 1.4rem;
+  border: 2px solid transparent;
+  border-radius: 1.4rem;
+  background: #fff;
+  color: var(--c-prim, #1b3158);
+  font: inherit;
+  font-size: 1.6rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lg-card input:focus {
+  outline: none;
+  border-color: var(--c-prim, #1b3158);
+  box-shadow: 0 0 0 4px rgba(27, 49, 88, 0.18);
+}
+
+.lg-card input[aria-invalid="true"] {
+  border-color: var(--c-red, #f25141);
+}
+
+/* Campo de contraseña con el ojito dentro */
+.lg-pass {
+  position: relative;
+}
+
+.lg-pass input {
+  padding-right: 5rem;
+}
+
+.lg-eye {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(27, 49, 88, 0.65);
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.lg-eye:hover {
+  background: rgba(27, 49, 88, 0.08);
+  color: var(--c-prim, #1b3158);
+}
+
+.lg-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 5.2rem;
+  margin-top: 0.4rem;
+  border: 0;
+  border-radius: 1.4rem;
+  background: var(--c-prim, #0f2358);
+  color: #fff;
+  font: inherit;
+  font-size: 1.7rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), background 0.2s ease, box-shadow 0.25s ease;
+}
+
+.lg-submit:hover:not(:disabled) {
+  background: #0f2240;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px -12px rgba(15, 34, 64, 0.7);
+}
+
+.lg-submit:disabled {
+  opacity: 0.8;
+  cursor: progress;
+}
+
+.lg-spinner {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: lgSpin 0.8s linear infinite;
+}
+
+@keyframes lgSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lg-forgot {
+  margin: 1.8rem 0 0;
+  text-align: center;
+  color: rgba(27, 49, 88, 0.75);
+  font-size: 1.4rem;
+  line-height: 1.5;
+}
+
+.lg-forgot a {
+  color: var(--c-prim, #1b3158);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.lg-forgot a:hover {
+  text-decoration: underline;
+}
+
+/* Aviso de error dentro de la tarjeta */
+.lg-error {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+  padding: 1.2rem 1.4rem;
+  border-radius: 1.2rem;
+  background: #fff;
+  border-left: 5px solid var(--c-red, #f25141);
+  color: #a3261a;
+  font-size: 1.4rem;
+  font-weight: 700;
+  animation: lgShake 0.4s ease;
+}
+
+@keyframes lgShake {
+  20% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+}
+
+/* ---------- Mejoras visuales ---------- */
+
+/* Logo + frase + chips de usuarios, apilados a la izquierda */
+.lg-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  max-width: 48rem; /* más ancho: los tres chips caben en una sola fila */
+  text-align: center;
+}
+
+.lg-tagline {
+  margin: 0;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: clamp(2rem, 1.6vw + 1.2rem, 2.8rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  animation: lgRise 0.9s 0.2s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+.lg-roles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lg-roles li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.6rem 0.8rem 0.8rem;
+  border-radius: 10rem;
+  background: #fff;
+  border: 1px solid rgba(27, 49, 88, 0.1);
+  box-shadow: 0 10px 20px -14px rgba(27, 49, 88, 0.4);
+  font-size: 1.4rem;
+  font-weight: 700;
+  animation: lgRise 0.8s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+.lg-roles li:nth-child(1) { animation-delay: 0.3s; }
+.lg-roles li:nth-child(2) { animation-delay: 0.4s; }
+.lg-roles li:nth-child(3) { animation-delay: 0.5s; }
+
+/* círculo de color con el ícono de cada tipo de usuario */
+.lg-roles li i {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--tone);
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+/* Subtítulo y medallón de la tarjeta */
+.lg-card {
+  position: relative;
+  margin-top: 3rem; /* espacio para el medallón que sobresale */
+}
+
+.lg-lock {
+  position: absolute;
+  top: -3rem;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  margin-left: -3rem;
+  border: 0.5rem solid var(--c-bg, #fff6e7);
+  border-radius: 50%;
+  background: var(--c-prim, #1b3158);
+  color: #f9d644;
+  font-size: 2rem;
+}
+
+.lg-card h1 {
+  margin-top: 1.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.lg-card-sub {
+  margin: 0 0 2.2rem;
+  text-align: center;
+  color: rgba(27, 49, 88, 0.75);
+  font-size: 1.4rem;
+  line-height: 1.5;
+}
+
+/* Separador: una línea fina entre el formulario y las otras opciones */
+.lg-divider {
+  height: 1px;
+  margin: 2.2rem 0 1.8rem;
+  background: rgba(27, 49, 88, 0.22);
+}
+
+/* Botón verde "Registrarse" */
+.lg-register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 5.2rem;
+  border-radius: 1.4rem;
+  background: var(--c-green, #93c524);
+  color: var(--c-prim, #1b3158);
+  font-size: 1.7rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.25s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.25s ease, background 0.2s ease;
+}
+
+.lg-register:hover {
+  background: #a3d42e;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px -12px rgba(27, 49, 88, 0.55);
+}
+
+.lg-register:focus-visible {
+  outline: 0.3rem solid var(--c-prim, #1b3158);
+  outline-offset: 0.3rem;
+}
+
+.lg-register-hint {
+  margin: 1rem 0 1.8rem;
+  text-align: center;
+  color: rgba(27, 49, 88, 0.7);
+  font-size: 1.3rem;
+}
+
+.lg-demo-btn {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 2rem 0.7rem 0.7rem;
+  border: 2px solid var(--c-prim, #1b3158);
+  border-radius: 10rem;
+  background: #fff;
+  color: var(--c-prim, #1b3158);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 24px -14px rgba(27, 49, 88, 0.6);
+  transition: background 0.25s ease, transform 0.25s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.25s ease;
+}
+
+.lg-demo-btn:hover {
+  background: var(--c-prim, #1b3158);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px -14px rgba(27, 49, 88, 0.8);
+}
+
+/* círculo amarillo con la llave; "late" suavemente para llamar la atención */
+.lg-demo-ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: var(--c-accent, #febf22);
+  color: var(--c-prim, #1b3158);
+  font-size: 1.5rem;
+}
+
+.lg-demo-ico::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--c-accent, #febf22);
+  animation: lgPing 2.2s ease-out infinite;
+}
+
+@keyframes lgPing {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+.lg-copy {
+  margin: 2.4rem 0 0;
+  color: rgba(27, 49, 88, 0.6);
+  font-size: 1.3rem;
+}
+
+/* ---------- Fondo decorativo con formas que flotan ---------- */
+.lg-page {
+  /* Las manchas de luz del fondo (::before y ::after) se salen de la página a propósito.
+     "clip" recorta lo que sobresale en los dos ejes; antes solo se recortaba el horizontal,
+     y la mancha de abajo alargaba la página dejando un hueco en blanco. */
+  overflow: clip;
+}
+
+.lg-page::before,
+.lg-page::after {
+  /* segundo destello suave de sol, arriba a la izquierda */
+  width: 40rem;
+  height: 40rem;
+  top: -18rem;
+  left: -12rem;
+  background: radial-gradient(circle, rgba(255, 214, 102, 0.45), rgba(255, 214, 102, 0) 65%);
+}
+
+.lg-page::before {
+  width: 62rem;
+  height: 62rem;
+  top: -24rem;
+  right: -20rem;
+  background: radial-gradient(circle, rgba(249, 214, 68, 0.6), rgba(249, 214, 68, 0) 65%);
+}
+
+.lg-page::after {
+  width: 56rem;
+  height: 56rem;
+  bottom: -24rem;
+  left: -18rem;
+  background: radial-gradient(circle, rgba(40, 168, 227, 0.28), rgba(40, 168, 227, 0) 65%);
+}
+
+.lg-deco {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lg-shape {
+  position: absolute;
+  animation: lgFloat 7s ease-in-out infinite;
+}
+
+.lg-star {
+  color: var(--c-accent, #febf22);
+  line-height: 1;
+}
+
+.lg-star-1 {
+  top: 16%;
+  left: 9%;
+  font-size: 6rem;
+  animation-delay: -2s;
+}
+
+.lg-star-2 {
+  top: 62%;
+  right: 8%;
+  font-size: 4rem;
+  color: var(--c-orange, #ff8a00);
+  animation-delay: -4s;
+}
+
+.lg-dot {
+  border-radius: 50%;
+}
+
+.lg-dot-red {
+  width: 2.2rem;
+  height: 2.2rem;
+  top: 24%;
+  right: 14%;
+  background: var(--c-red, #f25141);
+  animation-delay: -1s;
+}
+
+.lg-dot-green {
+  width: 3rem;
+  height: 3rem;
+  bottom: 18%;
+  right: 22%;
+  background: var(--c-green, #93c524);
+  animation-delay: -3s;
+}
+
+.lg-dot-blue {
+  width: 1.8rem;
+  height: 1.8rem;
+  top: 48%;
+  left: 4%;
+  background: var(--c-blue, #28a8e3);
+  animation-delay: -5s;
+}
+
+@keyframes lgFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-1.8rem) rotate(12deg);
+  }
+}
+
+/* Lo que tiene contenido va por encima del fondo decorativo */
+.lg-layout,
+.lg-copy,
+.lg-home {
+  position: relative;
+  z-index: 1;
+}
+
+.lg-home {
+  position: absolute;
+}
+
+/* ---------- Ventana de cuentas de prueba (<dialog>) ---------- */
+.lg-dialog {
+  width: min(92vw, 48rem);
+  max-height: 88vh;
+  margin: auto;
+  padding: 2.4rem;
+  border: 0;
+  border-radius: 2.8rem;
+  background: #fff;
+  color: var(--c-prim, #1b3158);
+  font-family: var(--font-body, "Segoe UI", system-ui, sans-serif);
+  box-shadow: 0 40px 100px -30px rgba(15, 34, 64, 0.65);
+  overflow: auto;
+}
+
+/* Fondo oscurecido y desenfocado detrás de la ventana */
+.lg-dialog::backdrop {
+  background: rgba(15, 34, 64, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.lg-dialog[open] {
+  animation: lgPop 0.35s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes lgPop {
+  from {
+    opacity: 0;
+    transform: translateY(1.6rem) scale(0.97);
+  }
+}
+
+.lg-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.8rem;
+}
+
+.lg-dialog-head h2 {
+  margin: 0;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.lg-dialog-x {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(27, 49, 88, 0.07);
+  color: var(--c-prim, #1b3158);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.lg-dialog-x:hover {
+  background: rgba(27, 49, 88, 0.15);
+}
+
+.lg-accounts {
+  display: grid;
+  gap: 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lg-accounts li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.6rem;
+  border-radius: 2rem;
+  background: color-mix(in srgb, var(--tone) 12%, white);
+  border: 1.5px solid color-mix(in srgb, var(--tone) 45%, white);
+}
+
+.lg-account-top {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 0.4rem;
+  font-size: 1.7rem;
+}
+
+.lg-account-ico {
+  display: grid;
+  place-items: center;
+  width: 3.8rem;
+  height: 3.8rem;
+  border-radius: 50%;
+  background: var(--tone);
+  color: #fff;
+  font-size: 1.6rem;
+}
+
+/* Una fila por dato: etiqueta, valor y botón de copiar */
+.lg-cred {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lg-cred-label {
+  flex: none;
+  width: 9rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.lg-cred code {
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 1rem;
+  border-radius: 1rem;
+  background: #fff;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+}
+
+.lg-cred button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 10.4rem;
+  justify-content: center;
+  padding: 0.8rem 1.2rem;
+  border: 0;
+  border-radius: 1rem;
+  background: rgba(27, 49, 88, 0.09);
+  color: var(--c-prim, #1b3158);
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.lg-cred button:hover {
+  background: rgba(27, 49, 88, 0.18);
+}
+
+.lg-use {
+  margin-top: 0.6rem;
+  padding: 1rem;
+  border: 0;
+  border-radius: 1.2rem;
+  background: var(--c-prim, #1b3158);
+  color: #fff;
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.lg-use:hover {
+  background: #0f2240;
+  transform: translateY(-2px);
+}
+
+/* Anillos de foco visibles con teclado */
+.lg-home:focus-visible,
+.lg-submit:focus-visible,
+.lg-demo-btn:focus-visible,
+.lg-forgot a:focus-visible,
+.lg-eye:focus-visible,
+.lg-dialog button:focus-visible {
+  outline: 0.3rem solid var(--c-prim, #1b3158);
+  outline-offset: 0.3rem;
+}
+
+.lg-home:focus-visible {
+  outline-color: #ffe88a;
+}
+
+/* ---------- Responsive ---------- */
+@media screen and (max-width: 560px) {
+  .lg-home,
+  .lg-demo-btn {
+    top: 1.4rem;
+    font-size: 1.3rem;
+  }
+
+  .lg-home {
+    left: 1.4rem;
+    padding: 0.9rem 1.6rem;
+  }
+
+  .lg-demo-btn {
+    right: 1.4rem;
+    padding-right: 1.4rem;
+  }
+
+  .lg-demo-ico {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .lg-cred {
+    flex-wrap: wrap;
+  }
+
+  .lg-cred-label {
+    width: 100%;
+  }
+
+  .lg-cred code {
+    flex: 1 1 60%;
+  }
+}
+
+/* Escritorio: logo a la izquierda, tarjeta a la derecha */
+@media screen and (min-width: 860px) {
+  .lg-page {
+    padding-top: 3rem;
+  }
+
+  .lg-layout {
+    flex-direction: row;
+    justify-content: center;
+    gap: 8rem;
+    max-width: 112rem;
+  }
+
+  .lg-logo img {
+    /* Crece con la pantalla pero se limita por alto (60vh) para no provocar scroll en ventanas bajas */
+    width: min(46rem, 36vw, 60vh);
+  }
+
+  .lg-card {
+    padding: 3.4rem 3.2rem 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-logo,
+  .lg-card,
+  .lg-tagline,
+  .lg-roles li,
+  .lg-shape,
+  .lg-cloud,
+  .lg-error,
+  .lg-demo-ico::after,
+  .lg-spinner,
+  .lg-dialog[open] {
+    animation: none;
+  }
+}
+
+/* ---------- Paisaje: colinas y nubes ---------- */
+.lg-hills {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(14rem, 30vh, 28rem);
+  display: block;
+}
+
+/* Una nube = un bloque redondeado blanco + dos "bultos" hechos con ::before y ::after */
+.lg-cloud {
+  position: absolute;
+  left: -24rem;
+  width: 15rem;
+  height: 4.6rem;
+  border-radius: 10rem;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 20px -12px rgba(27, 49, 88, 0.25);
+  animation: lgDrift 90s linear infinite;
+}
+
+.lg-cloud::before,
+.lg-cloud::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.lg-cloud::before {
+  width: 6.6rem;
+  height: 6.6rem;
+  top: -3rem;
+  left: 2.2rem;
+}
+
+.lg-cloud::after {
+  width: 5rem;
+  height: 5rem;
+  top: -2.2rem;
+  right: 2.4rem;
+}
+
+.lg-cloud-1 { top: 14%; animation-delay: -10s; }
+.lg-cloud-2 { top: 34%; width: 11rem; height: 3.6rem; animation-duration: 120s; animation-delay: -70s; opacity: 0.8; }
+.lg-cloud-3 { top: 8%; width: 12rem; height: 4rem; animation-duration: 150s; animation-delay: -115s; opacity: 0.7; }
+
+@keyframes lgDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 48rem)); }
+}
+
+/* El texto de derechos queda sobre las colinas: lo hacemos un poco más oscuro para que se lea */
+.lg-copy {
+  color: rgba(27, 49, 88, 0.78);
+  font-weight: 600;
+}

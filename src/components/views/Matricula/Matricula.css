@@ -1,0 +1,767 @@
+/* src/components/views/Matricula/Matricula.css */
+
+/*
+  Página de matrícula. Usa la paleta del proyecto (las variables --c-* viven en Home.css);
+  cada var() lleva un color de respaldo por si la página se abre sin la landing cargada.
+  Todas las clases empiezan por "mat-" para no chocar con los estilos de otras páginas.
+*/
+
+.mat-page {
+  min-height: 100vh;
+  background: var(--c-bg, #fff6e7);
+  color: var(--c-prim, #1b3158);
+  font-family: var(--font-body, "Segoe UI", system-ui, sans-serif);
+  padding: 2rem 1.6rem 8rem;
+}
+
+/* ---------- Barra superior ---------- */
+.mat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+  width: min(100%, 120rem);
+  margin: 0 auto 3rem;
+}
+
+.mat-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.8rem;
+  border-radius: 10rem;
+  background: rgba(27, 49, 88, 0.07);
+  color: var(--c-prim, #1b3158);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.25s ease, gap 0.25s ease;
+}
+
+.mat-back:hover {
+  background: rgba(27, 49, 88, 0.14);
+  gap: 1.2rem;
+}
+
+.mat-logo {
+  text-decoration: none;
+}
+
+/* ---------- Estructura de dos columnas ---------- */
+.mat-layout {
+  display: grid;
+  gap: 2.4rem;
+  width: min(100%, 120rem);
+  margin: 0 auto;
+}
+
+/* ---------- Columna izquierda (azul) ---------- */
+.mat-aside {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 3.2rem 2.4rem;
+  border-radius: 3.6rem;
+  background: var(--c-prim, #1b3158);
+  color: #fff;
+  animation: matRise 0.9s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+/* Manchas de luz (paleta) */
+.mat-aside::before,
+.mat-aside::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mat-aside::before {
+  width: 38rem;
+  height: 38rem;
+  top: -16rem;
+  right: -14rem;
+  background: radial-gradient(circle, rgba(254, 191, 34, 0.32), rgba(254, 191, 34, 0) 65%);
+}
+
+.mat-aside::after {
+  width: 34rem;
+  height: 34rem;
+  bottom: -16rem;
+  left: -12rem;
+  background: radial-gradient(circle, rgba(40, 168, 227, 0.3), rgba(40, 168, 227, 0) 65%);
+}
+
+.mat-eyebrow {
+  display: inline-flex;
+  margin-bottom: 1.6rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10rem;
+  background: rgba(254, 191, 34, 0.14);
+  border: 1px solid rgba(254, 191, 34, 0.35);
+  color: var(--c-accent, #febf22);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mat-aside h1 {
+  margin: 0 0 1.6rem;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: clamp(3rem, 4.2vw, 4.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.mat-aside h1 span {
+  background: linear-gradient(100deg, #ffb400, var(--c-orange, #ff8a00) 55%, var(--c-red, #f25141));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mat-aside-lead {
+  margin: 0 0 2.8rem;
+  color: rgba(255, 246, 231, 0.78);
+  font-size: 1.6rem;
+  line-height: 1.65;
+}
+
+/* Índice de bloques */
+.mat-steps {
+  display: none; /* en celular ocupa mucho espacio: solo se muestra en escritorio */
+  margin: 0 0 2.8rem;
+  padding: 0;
+  list-style: none;
+}
+
+.mat-steps a {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.2rem;
+  border-radius: 1.6rem;
+  color: rgba(255, 246, 231, 0.7);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.mat-steps a:hover {
+  color: #fff;
+}
+
+.mat-step-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 246, 231, 0.4);
+  font-size: 1.4rem;
+  font-weight: 800;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Bloque donde estás: se ilumina */
+.mat-steps li.is-active a {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.mat-steps li.is-active .mat-step-num {
+  background: var(--c-accent, #febf22);
+  border-color: var(--c-accent, #febf22);
+  color: var(--c-prim, #1b3158);
+}
+
+.mat-contact {
+  padding: 1.8rem 2rem;
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: rgba(255, 246, 231, 0.85);
+}
+
+.mat-contact p {
+  margin: 0;
+}
+
+.mat-contact-title {
+  margin-bottom: 0.6rem !important;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* ---------- Tarjeta del formulario ---------- */
+.mat-card {
+  padding: 2.4rem 1.8rem;
+  border-radius: 3.6rem;
+  background: #fff;
+  border: 1px solid rgba(27, 49, 88, 0.07);
+  box-shadow: 0 40px 80px -50px rgba(27, 49, 88, 0.45);
+  animation: matRise 0.9s 0.12s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) backwards;
+}
+
+@keyframes matRise {
+  from {
+    opacity: 0;
+    transform: translateY(2.4rem);
+  }
+}
+
+/* Cada bloque del formulario */
+.mat-section {
+  min-width: 0;
+  margin: 0 0 4rem;
+  padding: 0;
+  border: 0;
+  scroll-margin-top: 2rem;
+}
+
+.mat-section legend {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 2.4rem;
+  padding: 0;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.mat-legend-num {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--c-accent, #febf22);
+  font-size: 1.8rem;
+}
+
+/* Rejilla de campos */
+.mat-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+
+.mat-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.mat-section > .mat-field {
+  margin-bottom: 2rem;
+}
+
+.mat-field label,
+.mat-label {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.mat-req {
+  color: var(--c-red, #f25141);
+}
+
+/* Controles de texto, selects y áreas de texto */
+.mat-field input[type="text"],
+.mat-field input[type="tel"],
+.mat-field input[type="email"],
+.mat-field input[type="date"],
+.mat-field input[type="month"],
+.mat-field select,
+.mat-field textarea {
+  width: 100%;
+  min-height: 5.2rem;
+  padding: 1.2rem 1.6rem;
+  border: 1.5px solid rgba(27, 49, 88, 0.2);
+  border-radius: 1.4rem;
+  background: #fff;
+  color: var(--c-prim, #1b3158);
+  font: inherit;
+  font-size: 1.6rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mat-field textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.mat-field input::placeholder,
+.mat-field textarea::placeholder {
+  color: rgba(27, 49, 88, 0.4);
+}
+
+.mat-field input:hover,
+.mat-field select:hover,
+.mat-field textarea:hover {
+  border-color: rgba(27, 49, 88, 0.4);
+}
+
+/* Enfoque: borde azul + halo amarillo */
+.mat-field input:focus,
+.mat-field select:focus,
+.mat-field textarea:focus {
+  outline: none;
+  border-color: var(--c-prim, #1b3158);
+  box-shadow: 0 0 0 4px rgba(254, 191, 34, 0.45);
+}
+
+/* Flecha propia para los selects (dibujada como imagen SVG en el fondo) */
+.mat-field select {
+  appearance: none;
+  padding-right: 4.4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%231B3158' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.4rem center;
+}
+
+/* Estado de error */
+.mat-field.has-error input,
+.mat-field.has-error select,
+.mat-field.has-error textarea {
+  border-color: var(--c-red, #f25141);
+  background: #fff8f7;
+}
+
+.mat-field.has-error input:focus,
+.mat-field.has-error select:focus,
+.mat-field.has-error textarea:focus {
+  box-shadow: 0 0 0 4px rgba(242, 81, 65, 0.25);
+}
+
+.mat-error {
+  margin: 0;
+  color: #c4291a;
+  font-size: 1.3rem;
+  font-weight: 600;
+  animation: matShake 0.35s ease;
+}
+
+.mat-hint {
+  margin: 0;
+  color: rgba(27, 49, 88, 0.6);
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+@keyframes matShake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Sugerencia de grupo según la edad */
+.mat-group-tip {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-top: 2.4rem;
+  padding: 1.6rem 1.8rem;
+  border-radius: 2rem;
+  background: color-mix(in srgb, var(--tone, #febf22) 22%, white);
+  border: 1px solid color-mix(in srgb, var(--tone, #febf22) 55%, white);
+  animation: matPop 0.5s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.mat-group-tip p {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+
+.mat-group-emoji {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: var(--tone, #febf22);
+  font-size: 2.6rem;
+}
+
+@keyframes matPop {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.97);
+  }
+}
+
+/* Opciones tipo "chip" (radio oculto + etiqueta con aspecto de botón) */
+.mat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2.4rem;
+}
+
+.mat-chip {
+  position: relative;
+}
+
+.mat-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mat-chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 4.6rem;
+  padding: 0.8rem 2rem;
+  border: 1.5px solid rgba(27, 49, 88, 0.2);
+  border-radius: 10rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.mat-chip span:hover {
+  border-color: rgba(27, 49, 88, 0.5);
+}
+
+.mat-chip input:checked + span {
+  background: var(--c-prim, #1b3158);
+  border-color: var(--c-prim, #1b3158);
+  color: #fff;
+}
+
+.mat-chip input:focus-visible + span {
+  outline: 0.3rem solid var(--c-accent, #febf22);
+  outline-offset: 0.3rem;
+}
+
+/* Casillas de verificación */
+.mat-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.mat-check-row input {
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-top: 0.1rem;
+  accent-color: var(--c-prim, #1b3158);
+  cursor: pointer;
+}
+
+.mat-check-row input:focus-visible {
+  outline: 0.3rem solid var(--c-accent, #febf22);
+  outline-offset: 0.2rem;
+}
+
+.mat-consent {
+  margin-top: 0.4rem;
+  padding: 0.2rem 1.6rem 1.4rem;
+  border-radius: 1.8rem;
+  background: rgba(27, 49, 88, 0.04);
+  border: 1.5px solid transparent;
+}
+
+.mat-consent.has-error {
+  border-color: var(--c-red, #f25141);
+  background: #fff8f7;
+}
+
+.mat-consent .mat-error {
+  margin: 1rem 0 0 3.4rem;
+}
+
+/* ---------- Botones ---------- */
+.mat-submit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.4rem;
+}
+
+.mat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  min-height: 5.6rem;
+  padding: 0.8rem 0.8rem 0.8rem 3rem;
+  border: 0;
+  border-radius: 10rem;
+  background: var(--c-accent, #febf22);
+  color: var(--c-prim, #1b3158);
+  font: inherit;
+  font-size: 1.7rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 14px 30px -10px rgba(254, 191, 34, 0.8);
+  transition: transform 0.3s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.3s ease;
+}
+
+.mat-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 36px -10px rgba(254, 191, 34, 0.9);
+}
+
+.mat-btn:disabled {
+  opacity: 0.75;
+  cursor: progress;
+  padding-right: 3rem;
+}
+
+.mat-btn:focus-visible,
+.mat-btn-ghost:focus-visible {
+  outline: 0.3rem solid var(--c-prim, #1b3158);
+  outline-offset: 0.3rem;
+}
+
+.mat-btn-icon {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--c-prim, #1b3158);
+  color: var(--c-accent, #febf22);
+  font-size: 1.4rem;
+  transition: transform 0.3s var(--ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.mat-btn:hover:not(:disabled) .mat-btn-icon {
+  transform: translateX(4px);
+}
+
+.mat-btn-ghost {
+  min-height: 5.6rem;
+  padding: 0 2.6rem;
+  border: 1.5px solid rgba(27, 49, 88, 0.3);
+  border-radius: 10rem;
+  background: transparent;
+  color: var(--c-prim, #1b3158);
+  font: inherit;
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.mat-btn-ghost:hover {
+  background: rgba(27, 49, 88, 0.06);
+}
+
+.mat-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(27, 49, 88, 0.25);
+  border-top-color: var(--c-prim, #1b3158);
+  border-radius: 50%;
+  animation: matSpin 0.8s linear infinite;
+}
+
+@keyframes matSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mat-required-note {
+  margin: 0;
+  color: rgba(27, 49, 88, 0.6);
+  font-size: 1.3rem;
+}
+
+/* ---------- Pantalla de éxito ---------- */
+.mat-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 0.8rem 1rem;
+  text-align: center;
+}
+
+.mat-check {
+  width: 11rem;
+  height: 11rem;
+  margin-bottom: 2rem;
+}
+
+.mat-check circle {
+  fill: rgba(147, 197, 36, 0.22);
+  stroke: var(--c-green, #93c524);
+  stroke-width: 2.5;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: matDraw 0.8s 0.1s ease forwards;
+}
+
+.mat-check path {
+  fill: none;
+  stroke: var(--c-prim, #1b3158);
+  stroke-width: 3.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: matDraw 0.5s 0.7s ease forwards;
+}
+
+@keyframes matDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.mat-success h2 {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-display, "Segoe UI", sans-serif);
+  font-size: clamp(3rem, 4vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.mat-success-lead {
+  max-width: 48rem;
+  margin: 0 0 2.8rem;
+  font-size: 1.7rem;
+  line-height: 1.6;
+  color: rgba(27, 49, 88, 0.8);
+}
+
+.mat-next {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 44rem);
+  margin: 0 0 2.4rem;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.mat-next li {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  padding: 1.2rem 1.6rem;
+  border-radius: 1.6rem;
+  background: rgba(27, 49, 88, 0.05);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.mat-next span {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: var(--c-accent, #febf22);
+  font-weight: 800;
+}
+
+.mat-demo-note {
+  max-width: 44rem;
+  margin: 0 0 2.4rem;
+  padding: 1rem 1.4rem;
+  border-radius: 1.2rem;
+  background: rgba(40, 168, 227, 0.12);
+  color: #0f2240;
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+.mat-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.mat-success-actions .mat-btn {
+  padding: 0 3rem;
+}
+
+/* ---------- Responsive ---------- */
+@media screen and (min-width: 640px) {
+  .mat-card {
+    padding: 4rem 3.6rem;
+  }
+
+  .mat-aside {
+    padding: 4rem 3.6rem;
+  }
+
+  .mat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mat-span-2 {
+    grid-column: 1 / -1;
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  .mat-page {
+    padding: 3rem 3rem 10rem;
+  }
+
+  .mat-layout {
+    grid-template-columns: 38rem 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* la columna azul se queda fija mientras llenas el formulario */
+  .mat-aside {
+    position: sticky;
+    top: 3rem;
+    padding: 4.4rem 3.6rem;
+  }
+
+  .mat-steps {
+    display: block;
+  }
+
+  .mat-card {
+    padding: 5rem 5rem 4.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mat-aside,
+  .mat-card,
+  .mat-group-tip,
+  .mat-error,
+  .mat-spinner {
+    animation: none;
+  }
+
+  .mat-check circle,
+  .mat-check path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

@@ -1,0 +1,169 @@
+/* Contenedor general */
+.perfil-wrapper-persona{
+  padding: 24px 28px;
+  min-height: 500px;
+  max-width: 980px;
+  font-size: 2rem;
+  margin: 0 auto;
+}
+
+.perfil-wrapper h2{
+  margin: 0 0 16px;
+  font-weight: 700;
+  /* color: var(--brand); */
+  color: #000;
+}
+
+/* ====== Modo lectura ====== */
+.perfil-read{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.perfil-card{
+  background: var(--card);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  padding: 18px 20px;
+}
+.perfil-card button{
+    background: #245847;
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 12px;
+}
+
+.perfil-dl h3{
+  margin: 0 0 10px;
+ color: #000
+}
+
+.perfil-dl p{
+  margin: 6px 0;
+  color: var(--text);
+}
+
+.hint{
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Acciones comunes (lectura y edición) */
+.perfil-wrapper.persona .perfil-actions{
+  grid-column: 1 / -1;           /* que ocupe todo el ancho de la grid */
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.perfil-read .perfil-actions button{
+  background: #245847;
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 12px;
+}
+.perfil-wrapper.persona .perfil-read .perfil-actions button {
+  color: #fff;
+}
+
+.perfil-wrapper.persona .perfil-read .perfil-actions .secondary{
+  background: #e5e7eb;
+  color: var(--text);
+}
+
+.perfil-wrapper.persona .perfil-read .perfil-actions .link{
+  color:  #3c9477;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.perfil-wrapper.persona .perfil-read .perfil-actions button[disabled]{
+  opacity: .6;
+  cursor: not-allowed;
+  color: #fff;
+}
+
+/* ====== Modo edición (formulario) ====== */
+.perfil-form{
+  background: var(--card);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+}
+
+.perfil-form h3{
+  margin: 0 0 12px;
+  color: var(--dark-blue);
+}
+
+.perfil-form .grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 14px 20px;
+  margin-top: 8px;
+}
+
+.perfil-form label{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.perfil-form input,
+.perfil-form select,
+.perfil-form textarea{
+  outline: none;
+  padding: 10px 12px;
+  border: 1px solid var(--ring);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+
+.perfil-form input:focus,
+.perfil-form select:focus,
+.perfil-form textarea:focus{
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(27,49,88,.12);
+}
+.perfil-form .perfil-actions button{
+  background: #245847;
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+  margin: 12px;
+}
+.error{
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: -4px;
+}
+
+/* (opcional) Si quieres que en pantallas estrechas pase a una columna,
+   descomenta este bloque:
+
+@media (max-width: 920px){
+  .perfil-read{ grid-template-columns: 1fr; }
+  .perfil-actions{ grid-column: 1; }
+  .perfil-form .grid{ grid-template-columns: 1fr; }
+}
+*/

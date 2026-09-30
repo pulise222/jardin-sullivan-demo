@@ -1,0 +1,129 @@
+/* src/components/views/Acudiente/css/Acudiente.css */
+.acu-layout{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  min-height:100vh;
+  background:linear-gradient(#f5fafc,#eef5fb);
+  font-size: 2rem;
+}
+.acu-sidebar{background:#3a6ea5;padding:18px;color:#fff;display:flex;flex-direction:column;gap:18px;}
+.acu-user{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.acu-avatar img{width:100px;height:82px;border-radius:50%;object-fit:cover;border:3px solid #fff3;}
+.acu-username{font-weight:700;text-align:center}
+.acu-menu{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.acu-item{all:unset;display:block;padding:10px 12px;border-radius:10px;cursor:pointer;background:transparent;color:#fff}
+.acu-item:hover{background:#ffffff1a}
+.acu-item.active{background:#ffffff2b}
+.acu-item.logout{color:#ffdede}
+.acu-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;margin-right:8px;vertical-align:middle}
+
+.acu-main{padding:18px 22px}
+.acu-breadcrumb{background:#ffffff;box-shadow:0 2px 6px rgba(0,0,0,.06);border-radius:12px;padding:12px 16px;margin-bottom:14px;color:#6b7a90;font-weight:600}
+.acu-breadcrumb .sep{margin:0 8px;color:#9aa6b2}
+.acu-panel{
+  padding:8px;
+}
+
+.acu-tabs{display:flex;gap:10px;margin-bottom:12px}
+.acu-tab{all:unset;padding:8px 14px;border-radius:10px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.06);cursor:pointer;color:#1b3158}
+.acu-tab.active{background:#1b3158;color:#fff}
+
+.acu-card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:16px}
+
+.est-card{display:grid;grid-template-columns:1.1fr 1.4fr .8fr;gap:16px;margin-bottom:16px}
+.est-left{display:flex;gap:12px;align-items:center}
+.est-avatar img{width:70px;height:70px;border-radius:50%;object-fit:cover}
+.est-nombre{margin:0 0 6px 0}
+.est-curso{padding:.2rem .6rem;border-radius:16px;background:#eaf3ff;color:#1b3158;font-weight:700;font-size:.9rem}
+
+.est-info{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;color:#1b3158}
+.est-actions{background:#fff6d8;border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.btn-primary{background:#1b7bd7;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
+.btn-secondary{background:#eef3f8;color:#1b3158;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
+.btn-secondary:hover{background:#e3ecf7}
+
+.acu-title{margin:0 0 10px 0}
+.events-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.event-item{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.06);padding:12px}
+.muted{color:#6b7a90;font-size:.9rem}
+
+.perfil-wrap{display:flex;gap:16px;align-items:center}
+/* .perfil-wrapper{display:flex;gap:16px;align-items:center} */
+.perfil-avatar-lg img{
+  width:84px;
+  height:84px;
+  border-radius:50%;
+  object-fit:cover}
+.perfil-datos p{margin:.2rem 0}
+
+/* grid principal: contenido + rail derecho */
+.acu-grid {
+  display: grid;
+  grid-template-columns: minmax(680px, 2fr) 1fr;
+  gap: 24px;
+}
+
+/* tarjetas reutilizables */
+.acu-card {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.acu-card + .acu-card { margin-top: 16px; }
+
+.acu-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.acu-card-head h4 { margin: 0; }
+
+.btn-link {
+  background: transparent; border: none; color: #1b5fcc; cursor: pointer;
+}
+
+/* rail derecho */
+.acu-rail { position: sticky; top: 12px; height: fit-content; }
+
+/* mini perfil */
+.acu-profile-mini {
+  display: flex; gap: 12px; align-items: center;
+}
+.acu-profile-mini img {
+  width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+  border: 1px solid #ddd;
+}
+.acu-profile-mini .name { font-weight: 700; }
+.muted { color: #6b7280; font-size: .9rem; }
+
+/* tabs pequeños usados en actividades del estudiante */
+.acu-tabs.small { margin-bottom: 8px; }
+.cd-tab { padding: 6px 10px; border-radius: 8px; border: 1px solid #e5e7eb; margin-right: 6px; }
+.cd-tab.active { background: #1b3158; border-color: #1b3158; color: #fff; }
+
+/* mesa tabla compartida (ya usas una) */
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+.table th { background: #f9fafb; text-align: left; font-weight: 700; }
+
+/* responsive */
+@media (max-width: 1100px) {
+  .acu-grid { grid-template-columns: 1fr; }
+  .acu-rail { position: static; }
+}
+
+.acu-card .muted { color:#666; font-size: 12px; }
+@media print {
+  .acu-sidebar, .acu-breadcrumb, .btn-secondary { display: none !important; }
+  .acu-card { box-shadow: none; border: none; }
+  body { background: #fff; }
+}
+.acu-panel h3, .acu-panel h2 {
+  color: #0e3c8b;
+}
+.perfil-read button
+{
+  color: #0e3c8b;
+}

@@ -1,0 +1,61 @@
+/*
+  Ventana emergente (modal) reutilizable.
+  Fondo oscuro y desenfocado, contenido centrado y un botón de cerrar redondo arriba a la derecha.
+  El contenido (formularios) trae sus propios estilos.
+*/
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  /* align-items: flex-start + margin:auto en el contenido = centrado cuando cabe,
+     y arriba con scroll cuando es más alto que la pantalla (antes se cortaba la parte de arriba) */
+  align-items: flex-start;
+  padding: 2rem 1.2rem;
+  background: rgba(8, 30, 38, 0.62);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+  overscroll-behavior: contain; /* el scroll no "se pasa" a la página de atrás */
+  animation: modalFade 0.25s ease;
+}
+
+.modal-body {
+  width: 100%;
+  margin: auto;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal-close {
+  position: fixed;
+  top: 1.6rem;
+  right: 1.6rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 4.4rem;
+  height: 4.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #10323b;
+  font-size: 1.8rem;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease;
+}
+
+.modal-close:hover {
+  transform: rotate(90deg) scale(1.08);
+}
+
+.modal-close:focus-visible {
+  outline: 0.3rem solid #febf22;
+  outline-offset: 0.3rem;
+}

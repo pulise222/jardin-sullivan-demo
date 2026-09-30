@@ -1,0 +1,2744 @@
+/* src/components/views/Home/Home.css */
+
+/* ====================== TOKENS & BASE ====================== */
+:root {
+  /* colores */
+  --c-bg: #FFF6E7;
+  --c-prim: #1B3158;
+  --c-accent: #FEBF22;
+  --c-banner: #1A3258;
+  --c-accent-2: #FBC94E;
+  --c-text: #111;
+  --c-muted: #555;
+  /* colores de apoyo de la paleta (ya usados en Beneficios) */
+  --c-blue: #28A8E3;
+  --c-red: #F25141;
+  --c-green: #93C524;
+  --c-orange: #FF8A00;
+
+  /* tipografías */
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* layout */
+  --wrap-max: 120rem;
+  /* 1200px */
+  --navH: 6.6rem;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --touch: 4.4rem;
+
+  /* spacing (4px scale) */
+  --sp-1: .4rem;
+  --sp-2: .8rem;
+  --sp-3: 1.2rem;
+  --sp-4: 1.6rem;
+  --sp-6: 2.4rem;
+  --sp-8: 3.2rem;
+  --sp-10: 4rem;
+  --sp-12: 4.8rem;
+  --sp-16: 6.4rem;
+
+  /* type scale */
+  --fs-body: clamp(1.4rem, 1.2rem + 0.4vw, 1.6rem);
+  /* 14–16px */
+  --fs-lead: clamp(1.6rem, 1.4rem + 0.6vw, 2.0rem);
+  /* 16–20px */
+  --fs-h1: clamp(2.4rem, 2.0rem + 1.6vw, 4.0rem);
+  /* 24–40px */
+  --fs-h2: clamp(2.0rem, 1.8rem + 1.0vw, 3.2rem);
+  /* 20–32px */
+  --fs-h3: clamp(1.8rem, 1.6rem + 0.6vw, 2.4rem);
+  /* 18–24px */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.home {
+  min-height: 100vh;
+  color: var(--c-text);
+  font-family: var(--font-body);
+}
+
+/* Títulos con la tipografía de personalidad */
+.home h1,
+.home h2,
+.home h3 {
+  font-family: var(--font-display);
+}
+
+/* Al pulsar un enlace del menú, baja suave y deja espacio para el nav flotante */
+html:has(.home) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 9rem;
+}
+
+.wrap {
+  width: min(100% - 2rem, var(--wrap-max));
+  margin-inline: auto;
+}
+
+/* A11y: foco visible global */
+:where(a, button, [tabindex]):focus-visible {
+  outline: .3rem solid var(--c-accent);
+  outline-offset: .2rem;
+  border-radius: .6rem;
+}
+
+/* ====================== NAV (barra flotante tipo "píldora") ====================== */
+/*
+  IDEA: en vez de una barra pegada al borde, el menú "flota" como una cápsula
+  de vidrio. Arriba de todo es casi transparente; al bajar se vuelve más sólida,
+  se encoge un poco y gana sombra (clase .scrolled que pone React con el scroll).
+*/
+.nav {
+  position: fixed;
+  top: 1.2rem;
+  inset-inline: 0;
+  z-index: 100;
+  /* el contenedor no captura clics; solo la cápsula (.nav-shell) sí */
+  pointer-events: none;
+}
+
+.nav-shell {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+  width: min(100% - 2rem, 112rem);
+  margin-inline: auto;
+  padding: 0.7rem 0.8rem 0.7rem 1.6rem;
+  border-radius: 10rem;
+  background: rgba(255, 246, 231, 0.6);
+  border: 1px solid rgba(27, 49, 88, 0.08);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  transition: width 0.5s var(--ease), background 0.35s ease,
+    box-shadow 0.35s ease, border-color 0.35s ease;
+  /* "backwards": la animación NO deja un transform permanente al terminar */
+  animation: navIn 0.8s var(--ease) backwards;
+}
+
+.nav.scrolled .nav-shell {
+  width: min(100% - 2rem, 98rem);
+  background: rgba(255, 246, 231, 0.95);
+  border-color: rgba(254, 191, 34, 0.4);
+  box-shadow: 0 14px 40px -14px rgba(27, 49, 88, 0.3);
+}
+
+@keyframes navIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2rem);
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+
+/* --- Menú móvil: panel desplegable bajo la cápsula --- */
+.nav-links {
+  position: absolute;
+  top: calc(100% + 0.8rem);
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 0.4rem;
+  padding: 1.2rem;
+  border-radius: 2.4rem;
+  background: rgba(255, 246, 231, 0.97);
+  border: 1px solid rgba(27, 49, 88, 0.08);
+  box-shadow: 0 24px 60px -20px rgba(27, 49, 88, 0.35);
+  transform-origin: top center;
+  transform: translateY(-1rem) scale(0.98);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.35s var(--ease), opacity 0.25s ease, visibility 0.35s;
+}
+
+.nav-links.open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.nav-links a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--c-prim);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.8rem;
+  letter-spacing: -0.01em;
+  padding: 1.2rem 1.6rem;
+  border-radius: 1.4rem;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-links a:hover {
+  background: rgba(27, 49, 88, 0.06);
+}
+
+/* Enlace de la sección donde estás (lo detecta React con IntersectionObserver) */
+.nav-links a.is-active {
+  background: rgba(254, 191, 34, 0.28);
+  color: #0f2240;
+}
+
+/* Los enlaces entran uno tras otro al abrir el menú (--i lo pone React) */
+.nav-links.open a {
+  animation: linkIn 0.45s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms + 60ms);
+}
+
+@keyframes linkIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.8rem);
+  }
+}
+
+/* Botón de iniciar sesión */
+.nav-links a.btn-login {
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.4rem;
+  background: var(--c-prim);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: 10rem;
+  padding: 0.6rem 0.6rem 0.6rem 2rem;
+  min-height: var(--touch);
+  transition: background 0.25s ease, transform 0.25s var(--ease),
+    box-shadow 0.25s ease;
+}
+
+.btn-login-icon {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: var(--c-prim);
+  font-size: 1.2rem;
+  transition: transform 0.3s var(--ease);
+}
+
+.nav-links a.btn-login:hover {
+  background: #0f2240;
+  box-shadow: 0 10px 24px -8px rgba(27, 49, 88, 0.55);
+}
+
+.btn-login:hover .btn-login-icon {
+  transform: translateX(3px) rotate(-45deg);
+}
+
+.hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(27, 49, 88, 0.06);
+  border: 0;
+  cursor: pointer;
+  color: var(--c-prim);
+  border-radius: 50%;
+  width: var(--touch);
+  height: var(--touch);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.hamburger:hover {
+  background: rgba(27, 49, 88, 0.12);
+}
+
+.hamburger:active {
+  transform: scale(0.92);
+}
+
+/* Desktop / tablet grande: el menú se integra en la cápsula */
+@media screen and (min-width: 900px) {
+  .hamburger {
+    display: none;
+  }
+
+  .nav-links {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .nav-links a {
+    font-size: 1.5rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 10rem;
+  }
+
+  .nav-links a.btn-login {
+    margin-top: 0;
+    margin-left: 0.8rem;
+    padding: 0.4rem 0.4rem 0.4rem 1.8rem;
+    min-height: 0;
+  }
+}
+
+/* ====================== HERO SECTION ====================== */
+.hero-section {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  background: var(--c-bg);
+  padding-block: calc(var(--navH) + 5rem) 8rem;
+  overflow: hidden;
+}
+
+/* Manchas de luz de fondo (colores de la paleta). Se mueven un poco con el scroll */
+.hero-section::before,
+.hero-section::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-section::before {
+  width: 64rem;
+  height: 64rem;
+  top: -20rem;
+  right: -16rem;
+  background: radial-gradient(circle at 35% 35%, rgba(254, 191, 34, 0.5), rgba(254, 191, 34, 0) 65%);
+  transform: translateY(calc(var(--py, 0) * 0.14px));
+}
+
+.hero-section::after {
+  width: 56rem;
+  height: 56rem;
+  left: -18rem;
+  bottom: -22rem;
+  background: radial-gradient(circle, rgba(40, 168, 227, 0.24), rgba(40, 168, 227, 0) 65%);
+  transform: translateY(calc(var(--py, 0) * -0.08px));
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+  align-items: center;
+  width: min(100% - 3.2rem, var(--wrap-max));
+}
+
+/* Animación de entrada escalonada: cada elemento define su retraso con --d */
+.reveal {
+  animation: rise 0.9s var(--ease) backwards;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(2.4rem);
+  }
+}
+
+/* ── Texto ── */
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.4rem;
+  max-width: 60rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(27, 49, 88, 0.1);
+  border-radius: 10rem;
+  padding: 0.7rem 1.6rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--c-prim);
+}
+
+.hero-badge-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--c-green);
+  box-shadow: 0 0 0 3px rgba(147, 197, 36, 0.3);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(147, 197, 36, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(147, 197, 36, 0.08);
+  }
+}
+
+.hero-title {
+  font-size: clamp(4.2rem, 7.4vw, 8.4rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--c-prim);
+  margin: 0;
+}
+
+/* Degradado "amanecer": amarillo → naranja → rojo de la paleta */
+.hero-title-highlight {
+  display: inline-block;
+  background: linear-gradient(100deg, #ffb400 0%, var(--c-orange) 55%, var(--c-red) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* evita que se corte la cola de letras como la "j" o la "g" */
+  padding-bottom: 0.08em;
+}
+
+.hero-lead {
+  font-size: clamp(1.7rem, 1.4vw + 1rem, 2rem);
+  line-height: 1.65;
+  color: rgba(27, 49, 88, 0.75);
+  margin: 0;
+  max-width: 48rem;
+}
+
+/* ── Botones ── */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.hero-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--c-accent);
+  color: var(--c-prim);
+  font-weight: 700;
+  font-size: 1.6rem;
+  padding: 1.4rem 2.8rem;
+  border-radius: 10rem;
+  text-decoration: none;
+  box-shadow: 0 10px 28px -8px rgba(254, 191, 34, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s ease, background 0.2s ease;
+  min-height: var(--touch);
+}
+
+.hero-cta-primary i {
+  font-size: 1.3rem;
+  transition: transform 0.3s var(--ease);
+}
+
+.hero-cta-primary:hover {
+  transform: translateY(-3px);
+  background: #ffc93c;
+  box-shadow: 0 16px 34px -8px rgba(254, 191, 34, 0.85);
+}
+
+.hero-cta-primary:hover i {
+  transform: translateX(4px);
+}
+
+.hero-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--c-prim);
+  font-weight: 600;
+  font-size: 1.6rem;
+  text-decoration: none;
+  padding: 1.4rem 2.2rem;
+  border-radius: 10rem;
+  border: 1.5px solid rgba(27, 49, 88, 0.2);
+  transition: background 0.25s ease, border-color 0.25s ease, gap 0.25s var(--ease);
+  min-height: var(--touch);
+}
+
+.hero-cta-secondary:hover {
+  background: rgba(27, 49, 88, 0.06);
+  border-color: rgba(27, 49, 88, 0.45);
+  gap: 1.3rem;
+}
+
+/* ── Imagen ── */
+.hero-media {
+  width: 100%;
+  max-width: 54rem;
+  /* parallax suave: sube un poco más lento que el scroll */
+  transform: translateY(calc(var(--py, 0) * -0.05px));
+}
+
+.hero-media-inner {
+  position: relative;
+}
+
+/* tarjeta amarilla inclinada detrás de la foto */
+.hero-media-inner::before {
+  content: "";
+  position: absolute;
+  inset: 5% -4% -4% 5%;
+  background: var(--c-accent);
+  border-radius: 4.4rem;
+  transform: rotate(4deg);
+  z-index: 0;
+}
+
+.hero-img-frame {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 1 / 1.08;
+  border-radius: 4.4rem 4.4rem 12rem 4.4rem;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -30px rgba(27, 49, 88, 0.45);
+}
+
+.hero-img-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  transition: transform 0.8s var(--ease);
+}
+
+.hero-img-frame:hover img {
+  transform: scale(1.04);
+}
+
+/* Etiquetas flotantes de vidrio */
+.hero-chip {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.8rem 1rem 1rem;
+  border-radius: 10rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 40px -14px rgba(27, 49, 88, 0.35);
+  animation: bob 6s ease-in-out infinite;
+}
+
+.hero-chip-1 {
+  top: 8%;
+  right: 1rem;
+}
+
+.hero-chip-2 {
+  bottom: 12%;
+  left: 1rem;
+  animation-duration: 7.5s;
+  animation-delay: -2s;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1rem);
+  }
+}
+
+.hero-chip-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 4.4rem;
+  height: 4.4rem;
+  border-radius: 50%;
+  background: rgba(254, 191, 34, 0.3);
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.hero-chip-2 .hero-chip-icon {
+  background: rgba(242, 81, 65, 0.16);
+}
+
+.hero-chip div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hero-chip strong {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--c-prim);
+  line-height: 1.2;
+}
+
+.hero-chip span {
+  font-size: 1.2rem;
+  color: rgba(27, 49, 88, 0.65);
+  line-height: 1.2;
+}
+
+/* Indicador "desliza" (solo escritorio) */
+.hero-scroll {
+  display: none;
+}
+
+@media screen and (min-width: 900px) {
+  .hero-inner {
+    flex-direction: row;
+    gap: 6rem;
+  }
+
+  .hero-text {
+    flex: 1 1 52%;
+  }
+
+  .hero-media {
+    flex: 1 1 44%;
+  }
+
+  .hero-chip-1 {
+    right: -3.6rem;
+  }
+
+  .hero-chip-2 {
+    left: -4.4rem;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.4rem;
+    left: 50%;
+    display: block;
+    width: 2.6rem;
+    height: 4.2rem;
+    margin-left: -1.3rem;
+    border: 2px solid rgba(27, 49, 88, 0.35);
+    border-radius: 10rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .hero-scroll:hover {
+    border-color: var(--c-prim);
+  }
+
+  .hero-scroll span {
+    position: absolute;
+    top: 0.8rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.9rem;
+    margin-left: -0.25rem;
+    border-radius: 10rem;
+    background: var(--c-prim);
+    animation: scrollDot 1.8s var(--ease) infinite;
+  }
+}
+
+@keyframes scrollDot {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(1.6rem);
+  }
+}
+
+/* Respeto a quien pide menos movimiento en su sistema operativo */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .nav-shell,
+  .nav-links.open a,
+  .hero-chip,
+  .hero-badge-dot,
+  .hero-scroll span {
+    animation: none;
+  }
+
+  .hero-media,
+  .hero-section::before,
+  .hero-section::after {
+    transform: none;
+  }
+
+  html:has(.home) {
+    scroll-behavior: auto;
+  }
+}
+
+/* ====================== EVENTOS (carrusel) ====================== */
+/*
+  IDEA: una sección oscura (azul de la marca) que rompe el ritmo de la página,
+  como los "paneles" de Apple. Las tarjetas son fotos a sangre con degradado y
+  el texto encima; al pasar el mouse la foto hace zoom y aparece la descripción.
+*/
+.events-section {
+  position: relative;
+  /* isolation: crea su propio "nivel" de apilamiento para que los z-index
+     negativos de las manchas de luz no se escapen detrás de otras secciones */
+  isolation: isolate;
+  /* overflow hidden: recorta las manchas de luz que se salen del panel */
+  overflow: hidden;
+  /* margen lateral + esquinas redondeadas = efecto de "panel flotante" */
+  margin-inline: 1rem;
+  padding-block: 8rem 9rem;
+  border-radius: 4rem;
+  background: var(--c-prim);
+  color: #fff;
+}
+
+/* Manchas de luz de fondo (amarillo y celeste de la paleta).
+   ::before y ::after son "elementos falsos" que dibuja el CSS sin tocar el HTML */
+.events-section::before,
+.events-section::after {
+  content: "";
+  position: absolute;
+  z-index: -1; /* detrás del contenido */
+  border-radius: 50%;
+  pointer-events: none; /* no estorban los clics */
+}
+
+.events-section::before {
+  width: 60rem;
+  height: 60rem;
+  top: -26rem;
+  right: -14rem;
+  /* radial-gradient: círculo de color que se desvanece hacia transparente */
+  background: radial-gradient(circle, rgba(254, 191, 34, 0.28), rgba(254, 191, 34, 0) 65%);
+}
+
+.events-section::after {
+  width: 54rem;
+  height: 54rem;
+  bottom: -26rem;
+  left: -16rem;
+  background: radial-gradient(circle, rgba(40, 168, 227, 0.26), rgba(40, 168, 227, 0) 65%);
+}
+
+/* --- Encabezado --- */
+.events-header {
+  margin-bottom: 4.8rem;
+}
+
+/* Etiqueta pequeña en mayúsculas sobre el título */
+.events-eyebrow {
+  display: inline-flex;
+  margin-bottom: 1.6rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10rem; /* radio enorme = forma de píldora */
+  background: rgba(254, 191, 34, 0.14);
+  border: 1px solid rgba(254, 191, 34, 0.35);
+  color: var(--c-accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.events-title {
+  margin: 0;
+  color: #fff;
+  /* clamp(mínimo, ideal, máximo): el texto crece con el ancho de pantalla
+     pero nunca baja de 40px ni pasa de 72px */
+  font-size: clamp(4rem, 6vw, 7.2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em; /* letras más juntas = títulos grandes más elegantes */
+}
+
+.events-sub {
+  margin: 1.6rem 0 0;
+  max-width: 44rem;
+  color: rgba(255, 246, 231, 0.72);
+  font-size: clamp(1.6rem, 0.9vw + 1.2rem, 1.9rem);
+  line-height: 1.6;
+}
+
+/* --- Carrusel: scroll horizontal con "imán" (scroll-snap), sin barra visible --- */
+.ev-scroller {
+  overflow-x: auto; /* permite deslizar de lado */
+  /* scroll-snap: al soltar, el carrusel se alinea solo a una tarjeta */
+  scroll-snap-type: x mandatory;
+  /* evita que al llegar al final se mueva toda la página */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none; /* oculta la barra en Firefox */
+  -webkit-overflow-scrolling: touch; /* inercia suave en iPhone */
+  /* aire arriba/abajo para que la tarjeta pueda "subir" al hover sin cortarse;
+     el margen negativo compensa ese espacio para no mover el diseño */
+  padding-block: 1rem;
+  margin-block: -1rem;
+  border-radius: 2.8rem;
+}
+
+/* Oculta la barra en Chrome/Safari */
+.ev-scroller::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Anillo visible al enfocar con teclado (accesibilidad) */
+.ev-scroller:focus-visible {
+  outline: 0.3rem solid var(--c-accent);
+  outline-offset: 0.4rem;
+}
+
+/* La fila de tarjetas: un grid con las tarjetas puestas en columnas */
+.ev-track {
+  display: grid;
+  grid-auto-flow: column; /* cada tarjeta nueva va en una columna nueva (hacia la derecha) */
+  /* móvil: cada tarjeta mide 86% del ancho → se asoma un pedazo de la siguiente */
+  grid-auto-columns: 86%;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none; /* quita los puntos de la lista */
+}
+
+/* Cada tarjeta es un punto de "imán": el carrusel se alinea a su borde izquierdo */
+.ev-slide {
+  scroll-snap-align: start;
+}
+
+/* --- Tarjeta --- */
+/* Entrada: empieza invisible y 3rem más abajo; al recibir la clase is-visible
+   (que pone React con IntersectionObserver) sube y aparece.
+   transition-delay usa --i para que entren una tras otra. */
+.ev-card {
+  height: 100%;
+  opacity: 0;
+  transform: translateY(3rem);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+
+.ev-card.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* El "cuerpo" de la tarjeta: aquí van la foto, el degradado y el texto */
+.ev-card-inner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* el texto se pega abajo */
+  height: 100%;
+  min-height: 42rem;
+  aspect-ratio: 4 / 5; /* proporción vertical, como un póster */
+  padding: 2.4rem;
+  border-radius: 2.8rem;
+  overflow: hidden; /* recorta la foto a las esquinas redondeadas */
+  background: #0f2240;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  transition: transform 0.5s var(--ease), box-shadow 0.5s ease;
+}
+
+/* Hover (mouse) o focus-within (teclado): la tarjeta sube un poco */
+.ev-card:hover .ev-card-inner,
+.ev-card:focus-within .ev-card-inner {
+  transform: translateY(-0.6rem);
+  box-shadow: 0 40px 70px -30px rgba(0, 0, 0, 0.75);
+}
+
+/* La foto ocupa toda la tarjeta y queda detrás del texto (z-index negativo) */
+.ev-card-img {
+  position: absolute;
+  inset: 0; /* atajo de top/right/bottom/left: 0 */
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* llena el espacio recortando lo que sobre, sin deformar */
+  transition: transform 0.9s var(--ease);
+}
+
+.ev-card:hover .ev-card-img,
+.ev-card:focus-within .ev-card-img {
+  transform: scale(1.06); /* zoom suave */
+}
+
+/* Degradado oscuro abajo para que el texto blanco siempre se lea sobre la foto */
+.ev-card-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* entre la foto (-2) y el texto */
+  background: linear-gradient(to top, rgba(15, 34, 64, 0.96) 0%, rgba(15, 34, 64, 0.72) 40%, rgba(15, 34, 64, 0) 72%);
+}
+
+/* Fecha tipo calendario; el color (--accent) cambia en cada tarjeta */
+.ev-date-chip {
+  position: absolute;
+  top: 1.8rem;
+  left: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 1.8rem;
+  /* var(--accent, color) = usa --accent y, si no existe, el color de respaldo */
+  background: var(--accent, var(--c-accent));
+  color: var(--c-prim);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.45);
+}
+
+.ev-date-chip strong {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.ev-date-chip span {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Línea "fecha · hora · lugar" */
+.ev-meta {
+  margin: 0;
+  color: rgba(255, 246, 231, 0.82);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.ev-title {
+  margin: 0.6rem 0 0;
+  color: #fff;
+  font-size: clamp(2.2rem, 1.6rem + 0.9vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/*
+  Tarjetita de información del evento (.ev-pop). Vive dentro de .ev-more, que contiene el botón.
+  Está oculta y se muestra con hover (mouse), foco de teclado o al tocar el botón (clase is-open).
+  Se posiciona respecto a la tarjeta (.ev-card-inner es position: relative).
+*/
+.ev-pop {
+  position: absolute;
+  left: 1.4rem;
+  right: 1.4rem;
+  bottom: 9.8rem; /* justo encima del botón */
+  z-index: 3;
+  padding: 1.6rem 1.8rem;
+  border-radius: 2rem;
+  background: #fff;
+  color: var(--c-prim);
+  box-shadow: 0 24px 50px -16px rgba(0, 0, 0, 0.6);
+  /* oculta: transparente, desplazada un poco hacia abajo y sin recibir clics */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1rem) scale(0.97);
+  transform-origin: bottom left;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.35s var(--ease), visibility 0.25s;
+}
+
+/* Piquito que apunta al botón */
+.ev-pop::after {
+  content: "";
+  position: absolute;
+  left: 3rem;
+  bottom: -0.7rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: #fff;
+  transform: rotate(45deg);
+  border-radius: 0.3rem;
+}
+
+.ev-pop strong {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.ev-pop ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+  color: rgba(27, 49, 88, 0.75);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.ev-pop li i {
+  width: 1.8rem;
+  margin-right: 0.4rem;
+  color: var(--accent, var(--c-accent));
+  text-align: center;
+}
+
+.ev-pop p {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.55;
+  color: rgba(27, 49, 88, 0.88);
+}
+
+/* Mientras la tarjetita está abierta, el título y la fecha de fondo se atenúan para que no se mezclen.
+   :has() = "la tarjeta que contiene esto"; .ev-meta y .ev-title son los textos de atrás. */
+.ev-meta,
+.ev-title {
+  transition: opacity 0.25s ease;
+}
+
+.ev-card-inner:has(.ev-more.is-open) .ev-meta,
+.ev-card-inner:has(.ev-more.is-open) .ev-title,
+.ev-card-inner:has(.ev-link:focus-visible) .ev-meta,
+.ev-card-inner:has(.ev-link:focus-visible) .ev-title {
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .ev-card-inner:has(.ev-more:hover) .ev-meta,
+  .ev-card-inner:has(.ev-more:hover) .ev-title {
+    opacity: 0;
+  }
+}
+
+/* Se muestra: tocando (is-open) o con el teclado (foco visible) */
+.ev-more.is-open .ev-pop,
+.ev-link:focus-visible ~ .ev-pop {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* ...o con el mouse. (hover: hover) = solo dispositivos con mouse; en pantallas táctiles el "hover"
+   se queda pegado después de tocar y no dejaría cerrar la tarjetita. */
+@media (hover: hover) {
+  .ev-more:hover .ev-pop {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+/* Botón "Ver detalle" */
+.ev-more {
+  align-self: flex-start; /* no se estira al ancho de la tarjeta */
+  margin-top: 1.6rem;
+}
+
+.ev-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent; /* es un <button>: se le quita el aspecto por defecto */
+  color: #fff;
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: var(--touch); /* mínimo 44px: cómodo de tocar en el celular */
+}
+
+/* Círculo con la flecha; toma el color de la tarjeta */
+.ev-link-icon {
+  display: grid;
+  place-items: center; /* centra la flecha dentro del círculo */
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: var(--accent, var(--c-accent));
+  color: var(--c-prim);
+  font-size: 1.2rem;
+  transition: transform 0.35s var(--ease);
+}
+
+.ev-link:hover .ev-link-icon,
+.ev-more.is-open .ev-link-icon {
+  transform: rotate(-45deg) scale(1.08); /* la flecha "apunta" hacia arriba-derecha */
+}
+
+/* --- Controles de abajo: flecha · indicadores · flecha --- */
+.ev-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3.6rem;
+}
+
+/* Flechas redondas */
+.ev-btn {
+  display: grid;
+  place-items: center;
+  width: 5rem;
+  height: 5rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 246, 231, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease,
+    transform 0.25s var(--ease), opacity 0.25s ease;
+}
+
+/* :not(:disabled) = solo reacciona si la flecha está activa */
+.ev-btn:hover:not(:disabled) {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-prim);
+  transform: scale(1.06);
+}
+
+.ev-btn:active:not(:disabled) {
+  transform: scale(0.95); /* efecto de "presionado" */
+}
+
+/* Al llegar al inicio/final la flecha se apaga */
+.ev-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* --- Indicadores: la "píldora" activa se alarga --- */
+.ev-indicators {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.ev-indicator {
+  position: relative;
+  width: 0.8rem;
+  height: 0.8rem;
+  padding: 0;
+  border: 0;
+  border-radius: 10rem;
+  background: rgba(255, 246, 231, 0.3);
+  cursor: pointer;
+  /* animamos el ancho para que el cambio de punto a píldora sea fluido */
+  transition: width 0.4s var(--ease), background 0.3s ease;
+}
+
+/* Zona de toque invisible, más grande que el punto visible (más fácil de pulsar) */
+.ev-indicator::after {
+  content: "";
+  position: absolute;
+  inset: -1.2rem -0.6rem;
+}
+
+.ev-indicator.is-active {
+  width: 3.2rem;
+  background: var(--c-accent);
+}
+
+/* Anillo de foco visible para quien navega con teclado */
+.ev-indicator:focus-visible,
+.ev-btn:focus-visible,
+.ev-link:focus-visible {
+  outline: 0.3rem solid var(--c-accent);
+  outline-offset: 0.3rem;
+}
+
+/* --- Responsive: cuántas tarjetas caben según el ancho de pantalla --- */
+/* Tablet ≥768: 2 tarjetas por vista */
+@media screen and (min-width: 768px) {
+  .ev-track {
+    grid-auto-columns: calc(50% - 1rem);
+  }
+}
+
+/* Desktop ≥1024: 3 tarjetas por vista (100% menos 2 espacios de 2rem, entre 3) */
+@media screen and (min-width: 1024px) {
+  .ev-track {
+    grid-auto-columns: calc((100% - 4rem) / 3);
+  }
+}
+
+/* Móvil: menos relleno y esquinas un poco menos grandes */
+@media screen and (max-width: 767px) {
+  .events-section {
+    padding-block: 6rem 7rem;
+    border-radius: 2.8rem;
+  }
+
+  .events-header {
+    margin-bottom: 3.2rem;
+  }
+}
+
+/* Si el sistema pide "reducir movimiento", quitamos las animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .ev-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .ev-card-img,
+  .ev-card-inner,
+  .ev-indicator {
+    transition: none;
+  }
+}
+
+/* ====================== EFECTOS DE SCROLL ====================== */
+/*
+  Aquí viven los estilos de las animaciones que dependen del scroll.
+  La lógica está en src/hooks/useScrollEffects.js y en <Words> (ScrollText.jsx).
+*/
+
+/* Barra de progreso fija arriba: se estira de 0 a 100% según lo que has bajado.
+   --scroll (0 a 1) lo escribe el hook en <html>. */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200; /* por encima del menú flotante */
+  height: 0.4rem;
+  background: linear-gradient(90deg, var(--c-accent), var(--c-orange), var(--c-red));
+  transform-origin: left center;
+  transform: scaleX(var(--scroll, 0));
+  pointer-events: none;
+}
+
+/*
+  Títulos palabra por palabra.
+  .sw es una "ventana" que recorta (overflow: hidden); la palabra (.sw-in) empieza
+  desplazada hacia abajo, fuera de la ventana, y sube cuando el título recibe
+  la clase is-visible. Los paddings con margen negativo agrandan la ventana para
+  no cortar tildes ni colas de letras, sin mover el texto.
+*/
+.sw {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.12em 0.06em 0.16em;
+  margin: -0.12em -0.06em -0.16em;
+}
+
+.sw-scrub,
+.sw-in {
+  display: inline-block;
+}
+
+[data-split] .sw-in {
+  transform: translateY(115%);
+  transition: transform 1s var(--ease);
+  /* retraso = 70 ms por cada palabra (--w) + un retraso extra opcional (--d) */
+  transition-delay: calc(var(--w, 0) * 70ms + var(--d, 0s));
+}
+
+[data-split].is-visible .sw-in {
+  transform: none;
+}
+
+/* Palabras del texto que "se enciende": el hook les cambia la opacidad */
+.sw-scrub .sw-in {
+  will-change: opacity;
+}
+
+/* Banda de palabras gigantes que se deslizan de lado al bajar.
+   Dos filas, cada una en sentido contrario (data-slide-x positivo / negativo). */
+.marquee {
+  overflow: hidden;
+  display: grid;
+  gap: 1rem;
+  padding-block: 6rem 4rem;
+  background: var(--c-bg);
+  user-select: none;
+}
+
+.marquee-row {
+  display: flex;
+  /* center en un contenedor que se desborda reparte el exceso a ambos lados */
+  justify-content: center;
+  width: 100%;
+  will-change: translate;
+}
+
+.marquee-row span {
+  flex: none;
+  white-space: nowrap;
+  padding-inline: 1.6rem;
+  color: var(--c-prim);
+  font-family: var(--font-display);
+  /* más pequeño que antes para que quepan ~3 palabras y todas se lean */
+  font-size: clamp(3.6rem, 4.8vw, 8rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+/* Estrellita separadora entre palabras */
+.marquee-row span::after {
+  content: "\2726";
+  margin-left: 3.2rem;
+  color: var(--c-accent);
+  font-size: 0.5em;
+  vertical-align: middle;
+}
+
+/* La segunda fila usa el degradado cálido de la marca en vez de un contorno:
+   el contorno (-webkit-text-stroke) dejaba ver los trazos internos de las letras */
+.marquee-row-warm span {
+  background: linear-gradient(100deg, var(--c-orange), var(--c-red));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* la estrellita no debe heredar el texto transparente */
+.marquee-row-warm span::after {
+  -webkit-text-fill-color: var(--c-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-split] .sw-in {
+    transform: none;
+    transition: none;
+  }
+
+  .scroll-progress {
+    display: none;
+  }
+}
+
+/* ====================== REVEAL (aparecer al hacer scroll) ====================== */
+/*
+  Cualquier elemento con el atributo data-reveal empieza invisible y desplazado.
+  Cuando React le agrega la clase .is-visible, vuelve a su sitio con una transición.
+    data-reveal          → sube desde abajo
+    data-reveal="left"   → entra desde la izquierda
+    data-reveal="right"  → entra desde la derecha
+  --d es el retraso (delay) que le ponemos a cada elemento en el JSX.
+*/
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(2.4rem);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  transition-delay: var(--d, 0s);
+}
+
+[data-reveal="left"] {
+  transform: translateX(-3.2rem);
+}
+
+[data-reveal="right"] {
+  transform: translateX(3.2rem);
+}
+
+/* Estado final (más específico que los anteriores, por eso gana) */
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ====================== NOSOTROS ====================== */
+.nos-section {
+  background: var(--c-bg);
+  padding-block: 10rem 8rem;
+}
+
+/* Fotos + texto: en móvil una columna, en escritorio dos */
+.nos-intro {
+  display: grid;
+  gap: 5rem;
+  align-items: center;
+}
+
+/* --- Mosaico de fotos --- */
+.nos-media {
+  position: relative;
+  /* espacio abajo para que la foto pequeña "sobresalga" del marco de la grande */
+  padding-bottom: 5rem;
+  margin-right: 1.4rem;
+}
+
+/* tarjeta celeste inclinada detrás de la foto grande (mismo truco que el hero) */
+.nos-media::before {
+  content: "";
+  position: absolute;
+  inset: 4% 4% 9% -3%;
+  border-radius: 4.4rem;
+  background: var(--c-blue);
+  opacity: 0.85;
+  transform: rotate(-3deg);
+}
+
+.nos-photo {
+  position: relative;
+  overflow: hidden; /* recorta la imagen a las esquinas redondeadas */
+}
+
+.nos-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.9s var(--ease);
+}
+
+.nos-photo:hover img {
+  transform: scale(1.05); /* zoom suave al pasar el mouse */
+}
+
+.nos-photo-main {
+  aspect-ratio: 4 / 3.3;
+  border-radius: 4.4rem 4.4rem 4.4rem 12rem;
+  box-shadow: 0 40px 80px -30px rgba(27, 49, 88, 0.5);
+}
+
+/* Foto pequeña: encima de la grande, en la esquina inferior derecha.
+   El borde del color del fondo la "recorta" visualmente de la foto grande. */
+.nos-photo-small {
+  position: absolute;
+  right: -1.4rem;
+  bottom: 0;
+  width: 42%;
+  aspect-ratio: 3 / 4;
+  border-radius: 3rem;
+  border: 0.8rem solid var(--c-bg);
+  box-shadow: 0 24px 50px -20px rgba(27, 49, 88, 0.5);
+}
+
+/* --- Texto --- */
+.nos-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.nos-eyebrow {
+  display: inline-flex;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10rem;
+  background: rgba(27, 49, 88, 0.07);
+  border: 1px solid rgba(27, 49, 88, 0.12);
+  color: var(--c-prim);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.nos-title {
+  margin: 0;
+  color: var(--c-prim);
+  font-size: clamp(3.4rem, 5vw, 6rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+/* Palabra destacada con el degradado "amanecer" (igual que en el hero) */
+.nos-title-highlight {
+  display: inline-block;
+  background: linear-gradient(100deg, #ffb400 0%, var(--c-orange) 55%, var(--c-red) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-bottom: 0.08em; /* evita que se corte la cola de letras como la "j" */
+}
+
+.nos-lead {
+  margin: 0;
+  max-width: 52rem;
+  color: rgba(27, 49, 88, 0.88);
+  font-size: clamp(1.7rem, 0.9vw + 1.3rem, 2rem);
+  line-height: 1.7;
+}
+
+.nos-body {
+  margin: 0;
+  max-width: 52rem;
+  color: rgba(27, 49, 88, 0.7);
+  font-size: 1.6rem;
+  line-height: 1.75;
+}
+
+/* --- Pilares: rejilla de tarjetas --- */
+.nos-pillars {
+  display: grid;
+  grid-template-columns: 1fr; /* móvil: una columna */
+  gap: 2rem;
+  margin: 9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nos-pillar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 3rem 2.6rem;
+  border-radius: 2.8rem;
+  background: #fff;
+  border: 1px solid rgba(27, 49, 88, 0.07);
+  box-shadow: 0 18px 40px -26px rgba(27, 49, 88, 0.35);
+  /* Animamos la aparición (opacity + transform, con retraso --d) y también el
+     hover (sombra y borde, sin retraso). Cada retraso de la lista de abajo
+     corresponde, en orden, a cada propiedad de esta lista. */
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease),
+    box-shadow 0.35s ease, border-color 0.35s ease;
+  transition-delay: var(--d, 0s), var(--d, 0s), 0s, 0s;
+}
+
+.nos-pillar.is-visible:hover {
+  transform: translateY(-0.6rem);
+  border-color: var(--tone);
+  box-shadow: 0 28px 50px -24px rgba(27, 49, 88, 0.45);
+}
+
+/* Círculo del ícono: mezcla el color de la tarjeta con blanco para un tono suave */
+.nos-pillar-icon {
+  display: grid;
+  place-items: center;
+  width: 5.6rem;
+  height: 5.6rem;
+  margin-bottom: 0.6rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tone) 24%, white);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.nos-pillar h3 {
+  margin: 0;
+  color: var(--c-prim);
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.nos-pillar p {
+  margin: 0;
+  color: rgba(27, 49, 88, 0.72);
+  font-size: 1.5rem;
+  line-height: 1.65;
+}
+
+/* --- Frase de cierre --- */
+.nos-quote {
+  position: relative;
+  max-width: 92rem;
+  margin: 9rem auto 0;
+  text-align: center;
+}
+
+/* Comillas grandes decorativas encima de la frase */
+.nos-quote::before {
+  content: "\201C";
+  display: block;
+  height: 5rem;
+  color: var(--c-accent);
+  font-family: var(--font-display);
+  font-size: 14rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.nos-quote-text {
+  margin: 0;
+  color: var(--c-prim);
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 4.4vw, 5.2rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.nos-quote-sub {
+  margin: 2rem auto 0;
+  max-width: 56rem;
+  color: rgba(27, 49, 88, 0.68);
+  font-size: 1.7rem;
+  line-height: 1.6;
+}
+
+/* --- Responsive --- */
+/* Tablet ≥640: pilares en 2 columnas */
+@media screen and (min-width: 640px) {
+  .nos-pillars {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Escritorio ≥900: foto a la izquierda, texto a la derecha */
+@media screen and (min-width: 900px) {
+  .nos-intro {
+    grid-template-columns: 1.05fr 1fr;
+    gap: 8rem;
+  }
+
+  .nos-media {
+    margin-right: 2.4rem;
+  }
+}
+
+/* Escritorio grande ≥1100: pilares en 4 columnas */
+@media screen and (min-width: 1100px) {
+  .nos-pillars {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Móvil */
+@media screen and (max-width: 767px) {
+  .nos-section {
+    padding-block: 7rem 6rem;
+  }
+
+  .nos-pillars,
+  .nos-quote {
+    margin-top: 6rem;
+  }
+
+  .nos-photo-main {
+    border-radius: 3rem 3rem 3rem 8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nos-photo img,
+  .nos-pillar {
+    transition: none;
+  }
+}
+
+/* ====================== GRUPOS (tarjetas apiladas) ====================== */
+/*
+  IDEA: cuatro tarjetas grandes, una por grupo de edad. Cada una queda "pegada"
+  arriba (position: sticky) mientras bajas, y la siguiente la va cubriendo, como
+  una pila de cartas. La tarjeta que queda debajo se encoge y se oscurece un poco:
+  eso lo calcula el hook y lo entrega en la variable --stack (de 0 a 1).
+*/
+.grupos-section {
+  background: var(--c-bg);
+  padding-block: 4rem 12rem;
+}
+
+.grupos-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 76rem;
+  margin-bottom: 6rem;
+}
+
+.grupos-title {
+  margin: 0;
+  color: var(--c-prim);
+  font-size: clamp(3.4rem, 5vw, 6rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.grupos-sub {
+  margin: 0;
+  max-width: 54rem;
+  color: rgba(27, 49, 88, 0.72);
+  font-size: clamp(1.6rem, 0.9vw + 1.2rem, 1.9rem);
+  line-height: 1.7;
+}
+
+.title-center {
+  text-align: center;
+  color: var(--c-prim);
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  margin: 0 0 3rem;
+}
+
+/* OJO: para que sticky funcione, las tarjetas deben estar en flujo normal (block),
+   no dentro de un grid/flex. Por eso el espacio entre ellas es un margin. */
+.grupos-stack {
+  display: block;
+}
+
+.grupo-card {
+  position: sticky;
+  /* cada tarjeta se pega un poco más abajo que la anterior (--i = 0,1,2,3) */
+  top: calc(10rem + var(--i, 0) * 1.8rem);
+  margin-bottom: 4rem;
+}
+
+.grupo-card:last-child {
+  margin-bottom: 0;
+}
+
+.grupo-card-inner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  min-height: 32rem;
+  padding: 3rem 2.6rem;
+  border-radius: 3.6rem;
+  background: var(--tone);
+  color: var(--ink, var(--c-prim));
+  box-shadow: 0 -12px 40px -22px rgba(27, 49, 88, 0.4), 0 40px 70px -40px rgba(27, 49, 88, 0.55);
+  /* se encoge hasta un 7% cuando la siguiente tarjeta la cubre */
+  transform-origin: top center;
+  transform: scale(calc(1 - var(--stack, 0) * 0.07));
+  will-change: transform;
+}
+
+/* Círculo translúcido decorativo */
+.grupo-card-inner::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 44rem;
+  height: 44rem;
+  top: -18rem;
+  right: -12rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Capa oscura que va apareciendo al quedar cubierta por la siguiente tarjeta */
+.grupo-card-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: #0f2240;
+  opacity: calc(var(--stack, 0) * 0.32);
+  pointer-events: none;
+}
+
+.grupo-age {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.grupo-age-num {
+  display: flex;
+  align-items: center;
+  /* espacio entre el primer número, el guion y el segundo */
+  gap: 0.1em;
+  font-family: var(--font-display);
+  font-size: clamp(8rem, 13vw, 15rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+/* Guion más pequeño y fino, centrado entre los dos números */
+.grupo-age-dash {
+  font-size: 0.4em;
+  font-weight: 700;
+  opacity: 0.7;
+  letter-spacing: 0;
+}
+
+.grupo-age-label {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.grupo-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+.grupo-num {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.grupo-info h3 {
+  margin: 0;
+  font-size: clamp(3rem, 4vw, 4.6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.grupo-desc {
+  margin: 0;
+  max-width: 44rem;
+  font-size: 1.7rem;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.grupo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* color-mix mezcla el color del texto con transparente: funciona en tarjetas claras y oscuras */
+.grupo-tags li {
+  padding: 0.7rem 1.4rem;
+  border-radius: 10rem;
+  background: color-mix(in srgb, var(--ink, var(--c-prim)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink, var(--c-prim)) 22%, transparent);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+/* Emoji grande de la esquina (decorativo) */
+.grupo-icon {
+  position: absolute;
+  top: 2rem;
+  right: 2.4rem;
+  font-size: 5.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.22));
+}
+
+/* Escritorio: edad | información | emoji, en tres columnas */
+@media screen and (min-width: 900px) {
+  .grupo-card {
+    top: calc(11rem + var(--i, 0) * 2.2rem);
+  }
+
+  .grupo-card-inner {
+    grid-template-columns: minmax(20rem, 28rem) 1fr auto;
+    gap: 4rem;
+    min-height: 36rem;
+    padding: 4.4rem 5.4rem;
+  }
+
+  .grupo-icon {
+    position: static;
+    font-size: clamp(8rem, 10vw, 13rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grupo-card-inner {
+    transform: none;
+  }
+
+  .grupo-card-inner::after {
+    display: none;
+  }
+}
+
+/* ====================== BENEFICIOS (sección anclada con scroll horizontal) ====================== */
+/*
+  IDEA: mientras bajas, la sección se queda fija (position: sticky) y las tarjetas
+  se deslizan de lado. El truco:
+    1) La <section> es MUY alta (el hook le pone la altura: recorrido horizontal + 1 pantalla).
+    2) Dentro, .hs-sticky se queda pegado arriba ocupando exactamente una pantalla.
+    3) El hook convierte cuánto has bajado en un desplazamiento horizontal de .hs-track.
+*/
+.beneficios-section {
+  position: relative;
+  background: var(--c-bg);
+}
+
+.hs-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh; /* "small viewport height": no salta con la barra del navegador en el celular */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* espacio arriba para el menú flotante y abajo para la barrita de progreso */
+  padding: 9rem 0 7rem;
+}
+
+.hs-track {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  width: max-content; /* la fila mide lo que miden sus hijos, aunque se salga de la pantalla */
+  /* deja el margen izquierdo alineado con el resto de la página y espacio al final */
+  padding-inline: max(2rem, calc((100vw - var(--wrap-max)) / 2));
+  will-change: translate;
+}
+
+/* --- Panel de introducción --- */
+.hs-intro {
+  flex: none;
+  width: min(86vw, 52rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.4rem;
+  padding-right: 3rem;
+}
+
+.hs-title {
+  margin: 0;
+  color: var(--c-prim);
+  font-size: clamp(3.6rem, 5.4vw, 6.4rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.hs-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  color: rgba(27, 49, 88, 0.65);
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* --- Tarjetas --- */
+.beneficio-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.4rem;
+  width: min(80vw, 42rem);
+  /* clamp(mínimo, ideal, máximo): crece con la altura de la pantalla, sin pasarse ni quedar diminuta */
+  height: clamp(30rem, 62svh, 56rem);
+  padding: 3.2rem;
+  border-radius: 3.6rem;
+  background: var(--tone);
+  color: var(--ink, var(--c-prim));
+  box-shadow: 0 40px 70px -40px rgba(27, 49, 88, 0.55);
+}
+
+/* Círculo translúcido decorativo (mismo lenguaje que las tarjetas de Grupos) */
+.beneficio-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 34rem;
+  height: 34rem;
+  top: -12rem;
+  right: -10rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.beneficio-num {
+  position: absolute;
+  top: 2.6rem;
+  left: 3.2rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+
+/* El emoji dentro de un círculo que gira con el avance (--hs va de 0 a 1) */
+.beneficio-circulo {
+  flex: none; /* en una columna flex, sin esto el círculo se aplasta cuando falta altura */
+  display: grid;
+  place-items: center;
+  width: 11rem;
+  height: 11rem;
+  margin-bottom: auto; /* empuja el círculo arriba y el texto abajo */
+  margin-top: 4rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  font-size: 5.4rem;
+  line-height: 1;
+  transform: rotate(calc(var(--hs, 0) * 120deg));
+}
+
+.beneficio-card h3 {
+  margin: 0;
+  font-size: clamp(2.8rem, 3vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.beneficio-card p {
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+/* --- Barrita de progreso --- */
+.hs-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 4rem;
+  width: min(30rem, 60vw);
+  height: 0.4rem;
+  margin-left: calc(min(30rem, 60vw) / -2);
+  border-radius: 10rem;
+  background: rgba(27, 49, 88, 0.14);
+  overflow: hidden;
+}
+
+.hs-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--c-accent), var(--c-orange), var(--c-red));
+  transform-origin: left center;
+  transform: scaleX(var(--hs, 0));
+}
+
+/* Sin animaciones: nada de anclar; las tarjetas quedan en una rejilla normal */
+@media (prefers-reduced-motion: reduce) {
+  .hs-sticky {
+    position: static;
+    height: auto;
+    padding-block: 8rem;
+  }
+
+  .hs-track {
+    flex-wrap: wrap;
+    width: auto;
+    padding-inline: 2rem;
+    translate: none;
+  }
+
+  .hs-progress {
+    display: none;
+  }
+
+  .beneficio-circulo {
+    transform: none;
+  }
+}
+
+/* ====================== MATRÍCULA (llamada a la acción) ====================== */
+.matricula-section {
+  background: var(--c-bg);
+  padding-block: 4rem 6rem;
+}
+
+.matricula-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+  padding: 5rem 2.6rem;
+  border-radius: 4rem;
+  background: var(--c-prim);
+  color: #fff;
+}
+
+/* Mancha de luz celeste de fondo */
+.matricula-panel::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  width: 52rem;
+  height: 52rem;
+  bottom: -26rem;
+  left: -14rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(40, 168, 227, 0.3), rgba(40, 168, 227, 0) 65%);
+}
+
+.matricula-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.2rem;
+}
+
+.matricula-eyebrow {
+  display: inline-flex;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10rem;
+  background: rgba(254, 191, 34, 0.14);
+  border: 1px solid rgba(254, 191, 34, 0.35);
+  color: var(--c-accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.matricula-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(3.4rem, 5.2vw, 6.2rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.matricula-sub {
+  margin: 0;
+  max-width: 46rem;
+  color: rgba(255, 246, 231, 0.78);
+  font-size: clamp(1.6rem, 0.9vw + 1.2rem, 1.9rem);
+  line-height: 1.65;
+}
+
+.matricula-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.6rem 2.4rem;
+  margin-top: 0.6rem;
+}
+
+/* Botón amarillo con círculo azul y flecha (mismo lenguaje que el resto de la página) */
+.matricula-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.4rem;
+  min-height: 5.6rem;
+  padding: 0.8rem 0.8rem 0.8rem 3rem;
+  border-radius: 10rem;
+  background: var(--c-accent);
+  color: var(--c-prim);
+  font-size: 1.7rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 14px 30px -10px rgba(254, 191, 34, 0.7);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s ease, background 0.2s ease;
+}
+
+.matricula-btn:hover {
+  transform: translateY(-3px);
+  background: #ffc93c;
+  box-shadow: 0 20px 36px -10px rgba(254, 191, 34, 0.85);
+}
+
+.matricula-btn-icon {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--c-prim);
+  color: var(--c-accent);
+  font-size: 1.4rem;
+  transition: transform 0.3s var(--ease);
+}
+
+.matricula-btn:hover .matricula-btn-icon {
+  transform: translateX(4px);
+}
+
+.matricula-link {
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+  text-underline-offset: 0.5rem;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.matricula-link:hover {
+  text-decoration-color: var(--c-accent);
+}
+
+.matricula-btn:focus-visible,
+.matricula-link:focus-visible {
+  outline: 0.3rem solid #fff;
+  outline-offset: 0.3rem;
+}
+
+/* Sol decorativo: en celular queda como textura de fondo (tenue); en escritorio, protagonista */
+.matricula-art {
+  position: absolute;
+  z-index: -1;
+  width: 26rem;
+  height: 26rem;
+  top: -7rem;
+  right: -8rem;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.matricula-art .sl-logo,
+.matricula-art .sl-logo-sun {
+  width: 100%;
+  height: 100%;
+}
+
+/* Solo los RAYOS giran con el scroll (2 vueltas entre arriba y abajo de la página; --scroll va de 0 a 1).
+   La cara se queda quieta y derecha, así el sol siempre se ve feliz. */
+.matricula-art .sl-logo-sun {
+  transition: none;
+}
+
+.matricula-art .sl-logo-rays {
+  transform: rotate(calc(var(--scroll, 0) * 720deg));
+  /* gira sobre el centro del propio dibujo de los rayos (no sobre la esquina del SVG) */
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media screen and (min-width: 900px) {
+  .matricula-panel {
+    grid-template-columns: 1.15fr 0.85fr;
+    padding: 7rem 6rem;
+  }
+
+  .matricula-art {
+    position: relative;
+    z-index: 0;
+    top: auto;
+    right: auto;
+    justify-self: end;
+    width: min(100%, 38rem);
+    height: auto;
+    aspect-ratio: 1;
+    margin-right: -6rem;
+    opacity: 1;
+  }
+}
+
+/* ====================== METODOLOGÍA ====================== */
+.metodologia-section {
+  background: var(--c-bg);
+  padding-block: 8rem 10rem;
+  /* La foto espera desplazada a la derecha antes de animarse; "clip" recorta ese
+     sobrante para que no aparezca scroll horizontal (y, a diferencia de "hidden",
+     no crea un contenedor de scroll, así que no afecta a position: sticky) */
+  overflow-x: clip;
+}
+
+.metodo-grid {
+  display: grid;
+  gap: 7rem;
+  align-items: center;
+}
+
+.metodo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.4rem;
+}
+
+.metodo-title {
+  margin: 0;
+  color: var(--c-prim);
+  font-size: clamp(3.6rem, 5.4vw, 6.4rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+/* Párrafo grande que se enciende palabra por palabra (lo controla el hook con data-scrub) */
+.metodo-lead {
+  margin: 0;
+  color: var(--c-prim);
+  font-size: clamp(2rem, 1.1vw + 1.5rem, 2.8rem);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.metodo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metodo-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1.8rem;
+  border-radius: 10rem;
+  background: #fff;
+  border: 1px solid rgba(27, 49, 88, 0.1);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* Puntito de color delante de cada chip (--dot lo define el JSX) */
+.metodo-chips li::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--dot);
+}
+
+/* --- Foto + sello --- */
+.metodo-media {
+  position: relative;
+  /* ancho: 100% del espacio disponible, con tope de 520px. min-width: 0 evita que la foto
+     (que es grande) ensanche la columna y provoque scroll horizontal */
+  width: 100%;
+  max-width: 52rem;
+  min-width: 0;
+  justify-self: center;
+}
+
+.metodo-text {
+  min-width: 0;
+}
+
+.metodo-photo {
+  aspect-ratio: 4 / 4.7;
+  overflow: hidden;
+  border-radius: 12rem 4.4rem 4.4rem 4.4rem;
+  box-shadow: 0 40px 80px -30px rgba(27, 49, 88, 0.5);
+}
+
+.metodo-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 30%;
+  transition: transform 0.9s var(--ease);
+}
+
+.metodo-photo:hover img {
+  transform: scale(1.05);
+}
+
+.metodo-badge {
+  position: absolute;
+  left: 0.6rem;
+  bottom: -3rem;
+  width: 14rem;
+  height: 14rem;
+  filter: drop-shadow(0 18px 24px rgba(27, 49, 88, 0.3));
+}
+
+/* El anillo de texto da 1,5 vueltas durante toda la página */
+.metodo-badge-ring {
+  transform-origin: 100px 100px;
+  transform: rotate(calc(var(--scroll, 0) * 540deg));
+}
+
+@media screen and (min-width: 640px) {
+  .metodo-badge {
+    left: -4rem;
+    width: 16rem;
+    height: 16rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .metodo-grid {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 9rem;
+  }
+
+  .metodo-media {
+    justify-self: end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matricula-art .sl-logo-rays,
+  .metodo-badge-ring {
+    transform: none;
+  }
+}
+
+/* ====================== FOOTER ====================== */
+/* Un panel azul redondeado que cierra la página (mismo lenguaje que Eventos y el banner) */
+.footer {
+  background: var(--c-bg);
+  padding: 4rem 1rem 1rem;
+}
+
+.footer-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-top: 7rem;
+  border-radius: 4rem;
+  background: var(--c-prim);
+  color: #fff;
+}
+
+/* Manchas de luz de la paleta */
+.footer-panel::before,
+.footer-panel::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.footer-panel::before {
+  width: 56rem;
+  height: 56rem;
+  top: -24rem;
+  left: -16rem;
+  background: radial-gradient(circle, rgba(254, 191, 34, 0.26), rgba(254, 191, 34, 0) 65%);
+}
+
+.footer-panel::after {
+  width: 52rem;
+  height: 52rem;
+  right: -16rem;
+  bottom: -22rem;
+  background: radial-gradient(circle, rgba(40, 168, 227, 0.28), rgba(40, 168, 227, 0) 65%);
+}
+
+/* --- Cabecera del footer --- */
+.footer-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.2rem;
+  margin-bottom: 5rem;
+}
+
+.footer-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(4rem, 7vw, 8rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.footer-sub {
+  margin: 0;
+  max-width: 46rem;
+  color: rgba(255, 246, 231, 0.75);
+  font-size: clamp(1.6rem, 0.9vw + 1.2rem, 1.9rem);
+  line-height: 1.6;
+}
+
+/* --- Datos de contacto + mapa --- */
+.footer-grid {
+  display: grid;
+  gap: 3rem;
+}
+
+.footer-list {
+  display: grid;
+  gap: 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6rem;
+  padding: 1.8rem 2rem;
+  border-radius: 2.4rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* Círculo del ícono: el color de cada fila viene de --tone */
+.footer-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 50%;
+  background: var(--tone);
+  color: var(--c-prim);
+  font-size: 1.8rem;
+}
+
+.footer-list div {
+  min-width: 0; /* permite que los correos largos se partan en vez de ensanchar la página */
+}
+
+.footer-list strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 246, 231, 0.6);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.footer-list p,
+.footer-list a {
+  display: block;
+  margin: 0;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1.65;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.footer-list a {
+  width: fit-content;
+  background-image: linear-gradient(var(--c-accent), var(--c-accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 2px; /* subrayado que "crece" al pasar el mouse */
+  transition: background-size 0.3s var(--ease);
+}
+
+.footer-list a:hover {
+  background-size: 100% 2px;
+}
+
+.footer-map {
+  min-height: 30rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 3rem;
+  background: #0f2240;
+  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, 0.7);
+}
+
+.footer-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* --- Enlaces rápidos --- */
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.6rem;
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.footer-nav a {
+  color: rgba(255, 246, 231, 0.8);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--c-accent);
+}
+
+/* --- Franja final --- */
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding-block: 2.4rem 3rem;
+  color: rgba(255, 246, 231, 0.65);
+  font-size: 1.4rem;
+}
+
+.footer-bottom p {
+  margin: 0;
+}
+
+.footer-bottom a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.4rem;
+}
+
+.footer-bottom a:hover {
+  color: var(--c-accent);
+}
+
+/* Botón redondo para volver arriba */
+.footer-bottom .footer-top {
+  display: grid;
+  place-items: center;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: var(--c-prim);
+  text-decoration: none;
+  transition: transform 0.3s var(--ease);
+}
+
+.footer-bottom .footer-top:hover {
+  color: var(--c-prim);
+  transform: translateY(-4px);
+}
+
+.footer-nav a:focus-visible,
+.footer-list a:focus-visible,
+.footer-bottom a:focus-visible {
+  outline: 0.3rem solid var(--c-accent);
+  outline-offset: 0.3rem;
+  border-radius: 0.4rem;
+}
+
+/* Nombre gigante del fondo: muy tenue, recortado por el panel */
+.footer-giant {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.06);
+  font-family: var(--font-display);
+  font-size: 12vw;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.85;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  will-change: translate;
+}
+
+@media screen and (min-width: 900px) {
+  .footer-panel {
+    padding-top: 9rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1.1fr;
+    gap: 4rem;
+    align-items: stretch;
+  }
+
+  .footer-map {
+    aspect-ratio: auto;
+    min-height: 46rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-giant {
+    translate: none;
+  }
+}
+
+/* ====================== BREAKPOINTS ====================== */
+/* Tablet ≥ 768px → Nav pasa a modo horizontal */
+@media screen and (min-width: 768px) {
+
+  .welcome-inner {
+    flex-direction: row;
+    gap: 1.6rem;
+  }
+
+
+
+
+
+}
+
+/* Desktop ≥ 1024px */
+@media screen and (min-width: 1024px) {
+
+
+
+
+
+
+
+
+
+  /* Darle más ancho al mapa en desktop */
+
+
+
+
+  /* 400px en desktop */
+}
+
+/* ====================== UTILIDADES ====================== */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
