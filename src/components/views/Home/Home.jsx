@@ -954,7 +954,7 @@ const Home = () => {
                   <div>
                     <strong>Horarios de atención</strong>
                     <p>Lunes a viernes: 7:30 a.m. - 5:00 p.m.</p>
-                    <p>Sábados: 8:00 a.m. - 12:00 m.</p>
+                    <p>Sábados: 8:00 a.m. - 12:00 p.m.</p>
                   </div>
                 </li>
               </ul>
