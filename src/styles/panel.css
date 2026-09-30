@@ -7,7 +7,7 @@
   IDEA: una base común para que los tres paneles se sientan una sola plataforma,
   y un COLOR DE ACENTO distinto por rol que orienta al usuario:
 
-      Administrador → rojo coral      Profesor → celeste      Acudiente → verde
+      Administrador → rojo coral      Profesor → ciruela y ámbar      Acudiente → azul y amarillo
 
   El acento se activa con el atributo data-role en el contenedor del panel:
       <div className="pn-layout" data-role="admin">
@@ -62,69 +62,73 @@
 }
 
 /*
-  PROFESOR → paleta "Cielo y rosa": menú celeste, rosa como acento, verde lima y amarillo de apoyo.
-  Sobreescribimos los MISMOS tokens que usa el administrador: por eso ningún componente cambia,
-  solo se repinta. (Los nombres --pn-teal/--pn-amber/--pn-petrol se reutilizan: aquí "teal" es verde lima.)
+  PROFESOR -> paleta "Ciruela y ambar": menu morado profundo, ambar como acento, turquesa y lila de apoyo.
+  Sobreescribimos los MISMOS tokens que usa el administrador: por eso ningun componente cambia,
+  solo se repinta. (Los nombres --pn-teal/--pn-amber/--pn-petrol se reutilizan: aqui "petrol" es lila.)
 */
 .pn-layout[data-role="profesor"] {
-  --pn-ink: #0f2f45;
-  --pn-ink-soft: rgba(15, 47, 69, 0.66);
-  --pn-line: rgba(15, 47, 69, 0.11);
-  --pn-bg: #f2f8fc;
-  --pn-side: #1c8fcb;
-  --pn-shadow: 0 1px 2px rgba(15, 47, 69, 0.06), 0 12px 28px -18px rgba(28, 143, 203, 0.45);
+  --pn-ink: #24123f;
+  --pn-ink-soft: rgba(36, 18, 63, 0.66);
+  --pn-line: rgba(36, 18, 63, 0.11);
+  --pn-bg: #f6f3fb;
+  --pn-side: #4a2a83;
+  --pn-shadow: 0 1px 2px rgba(36, 18, 63, 0.06), 0 12px 28px -18px rgba(74, 42, 131, 0.45);
 
-  --pn-glass-a: rgba(28, 143, 203, 0.93);
-  --pn-glass-b: rgba(12, 94, 147, 0.88);
-  --pn-glass-shadow: rgba(10, 70, 110, 0.7);
-  --pn-blob-a: rgba(255, 94, 138, 0.5);
-  --pn-blob-b: rgba(126, 217, 87, 0.42);
-  --pn-glow-a: rgba(126, 217, 87, 0.1);
-  --pn-glow-b: rgba(255, 94, 138, 0.08);
-  --pn-accent-ring: rgba(255, 94, 138, 0.3);
-  --pn-accent-glow: rgba(255, 94, 138, 0.8);
+  --pn-glass-a: rgba(74, 42, 131, 0.94);
+  --pn-glass-b: rgba(44, 22, 82, 0.9);
+  --pn-glass-shadow: rgba(30, 14, 60, 0.7);
+  --pn-blob-a: rgba(255, 176, 32, 0.5);
+  --pn-blob-b: rgba(183, 148, 246, 0.45);
+  --pn-glow-a: rgba(183, 148, 246, 0.12);
+  --pn-glow-b: rgba(255, 176, 32, 0.08);
+  --pn-accent-ring: rgba(255, 176, 32, 0.32);
+  --pn-accent-glow: rgba(255, 176, 32, 0.8);
 
-  --pn-side-1: #ff7fa3;
-  --pn-side-2: #ff5e8a;
-  --pn-accent: #ff5e8a;
-  --pn-accent-strong: #c2174f;
-  --pn-accent-soft: #ffe3ec;
-  --pn-on-accent: #0b2a40;
+  --pn-side-1: #ffc24d;
+  --pn-side-2: #ffb020;
+  --pn-accent: #ffb020;
+  --pn-accent-strong: #9a6500;
+  --pn-accent-soft: #fff0cf;
+  --pn-on-accent: #2a1650;
 
-  --pn-teal: #7ed957;      --pn-teal-soft: #dff4d8;    --pn-teal-strong: #2f7d12;
-  --pn-amber: #ffd23f;     --pn-amber-soft: #fff3c2;   --pn-amber-strong: #8a6500;
-  --pn-petrol: #1c8fcb;    --pn-petrol-soft: #d9ecf7;  --pn-petrol-strong: #0f6a9a;
+  --pn-teal: #2fb5a8;      --pn-teal-soft: #d6f1ee;    --pn-teal-strong: #0b7a6e;
+  --pn-amber: #ffd166;     --pn-amber-soft: #fff1cc;   --pn-amber-strong: #8a6100;
+  --pn-petrol: #b794f6;    --pn-petrol-soft: #ece3fb;  --pn-petrol-strong: #5d3aa8;
 }
 
-/* ACUDIENTE → verde bosque con acento coral (mismos tokens que los otros roles) */
+/*
+  ACUDIENTE -> paleta "Azul oceano y amarillo": menu azul profundo, amarillo como acento,
+  turquesa y coral de apoyo (recuerda los colores de la marca del jardin).
+  Aqui "amber" es coral y "petrol" es el azul.
+*/
 .pn-layout[data-role="acudiente"] {
-  --pn-ink: #143326;
-  --pn-ink-soft: rgba(20, 51, 38, 0.66);
-  --pn-line: rgba(20, 51, 38, 0.11);
-  --pn-bg: #f4f9f6;
-  --pn-side: #2d6a4f;
-  --pn-shadow: 0 1px 2px rgba(20, 51, 38, 0.06), 0 12px 28px -18px rgba(45, 106, 79, 0.45);
+  --pn-ink: #0f2447;
+  --pn-ink-soft: rgba(15, 36, 71, 0.66);
+  --pn-line: rgba(15, 36, 71, 0.11);
+  --pn-bg: #f3f7fd;
+  --pn-side: #1f4e9e;
+  --pn-shadow: 0 1px 2px rgba(15, 36, 71, 0.06), 0 12px 28px -18px rgba(31, 78, 158, 0.45);
 
-  --pn-glass-a: rgba(45, 106, 79, 0.94);
-  --pn-glass-b: rgba(24, 70, 50, 0.9);
-  --pn-glass-shadow: rgba(14, 50, 34, 0.7);
-  --pn-blob-a: rgba(255, 138, 91, 0.5);
-  --pn-blob-b: rgba(255, 210, 63, 0.4);
-  --pn-glow-a: rgba(255, 210, 63, 0.1);
-  --pn-glow-b: rgba(255, 138, 91, 0.08);
-  --pn-accent-ring: rgba(255, 138, 91, 0.3);
-  --pn-accent-glow: rgba(255, 138, 91, 0.8);
+  --pn-glass-a: rgba(31, 78, 158, 0.94);
+  --pn-glass-b: rgba(16, 48, 110, 0.9);
+  --pn-glass-shadow: rgba(10, 30, 80, 0.7);
+  --pn-blob-a: rgba(255, 201, 51, 0.5);
+  --pn-blob-b: rgba(47, 181, 163, 0.42);
+  --pn-glow-a: rgba(47, 181, 163, 0.1);
+  --pn-glow-b: rgba(255, 201, 51, 0.09);
+  --pn-accent-ring: rgba(255, 201, 51, 0.35);
+  --pn-accent-glow: rgba(255, 201, 51, 0.85);
 
-  --pn-side-1: #ffa37e;
-  --pn-side-2: #ff8a5b;
-  --pn-accent: #ff8a5b;
-  --pn-accent-strong: #b34a1f;
-  --pn-accent-soft: #ffe8de;
-  --pn-on-accent: #2b1408;
+  --pn-side-1: #ffd966;
+  --pn-side-2: #ffc933;
+  --pn-accent: #ffc933;
+  --pn-accent-strong: #8a6100;
+  --pn-accent-soft: #fff3c7;
+  --pn-on-accent: #0f2447;
 
-  --pn-teal: #7ed957;      --pn-teal-soft: #dff4d8;    --pn-teal-strong: #2f7d12;
-  --pn-amber: #ffd23f;     --pn-amber-soft: #fff3c2;   --pn-amber-strong: #8a6500;
-  --pn-petrol: #2d6a4f;    --pn-petrol-soft: #d9ece2;  --pn-petrol-strong: #1f5a40;
+  --pn-teal: #2fb5a3;      --pn-teal-soft: #d5f1ed;    --pn-teal-strong: #0b7a6b;
+  --pn-amber: #f26b4f;     --pn-amber-soft: #fde2db;   --pn-amber-strong: #b03a22;
+  --pn-petrol: #1f4e9e;    --pn-petrol-soft: #dbe6f7;  --pn-petrol-strong: #163d7e;
 }
 
 /* ---------- Estructura: menú lateral + contenido ---------- */

@@ -107,9 +107,9 @@ const Profe = () => {
         position="top-right"
         toastOptions={{
           duration: 3500,
-          style: { fontFamily: 'inherit', fontSize: '1.4rem', fontWeight: 600, borderRadius: '1.2rem', padding: '1.2rem 1.6rem', color: '#0f2f45' },
-          success: { iconTheme: { primary: '#7ed957', secondary: '#fff' } },
-          error: { iconTheme: { primary: '#ff5e8a', secondary: '#fff' } },
+          style: { fontFamily: 'inherit', fontSize: '1.4rem', fontWeight: 600, borderRadius: '1.2rem', padding: '1.2rem 1.6rem', color: '#24123f' },
+          success: { iconTheme: { primary: '#2fb5a8', secondary: '#fff' } },
+          error: { iconTheme: { primary: '#ffb020', secondary: '#fff' } },
         }}
       />
 
