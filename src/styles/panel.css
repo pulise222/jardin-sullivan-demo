@@ -96,11 +96,35 @@
   --pn-petrol: #1c8fcb;    --pn-petrol-soft: #d9ecf7;  --pn-petrol-strong: #0f6a9a;
 }
 
+/* ACUDIENTE → verde bosque con acento coral (mismos tokens que los otros roles) */
 .pn-layout[data-role="acudiente"] {
+  --pn-ink: #143326;
+  --pn-ink-soft: rgba(20, 51, 38, 0.66);
+  --pn-line: rgba(20, 51, 38, 0.11);
+  --pn-bg: #f4f9f6;
   --pn-side: #2d6a4f;
+  --pn-shadow: 0 1px 2px rgba(20, 51, 38, 0.06), 0 12px 28px -18px rgba(45, 106, 79, 0.45);
+
+  --pn-glass-a: rgba(45, 106, 79, 0.94);
+  --pn-glass-b: rgba(24, 70, 50, 0.9);
+  --pn-glass-shadow: rgba(14, 50, 34, 0.7);
+  --pn-blob-a: rgba(255, 138, 91, 0.5);
+  --pn-blob-b: rgba(255, 210, 63, 0.4);
+  --pn-glow-a: rgba(255, 210, 63, 0.1);
+  --pn-glow-b: rgba(255, 138, 91, 0.08);
+  --pn-accent-ring: rgba(255, 138, 91, 0.3);
+  --pn-accent-glow: rgba(255, 138, 91, 0.8);
+
+  --pn-side-1: #ffa37e;
+  --pn-side-2: #ff8a5b;
   --pn-accent: #ff8a5b;
   --pn-accent-strong: #b34a1f;
   --pn-accent-soft: #ffe8de;
+  --pn-on-accent: #2b1408;
+
+  --pn-teal: #7ed957;      --pn-teal-soft: #dff4d8;    --pn-teal-strong: #2f7d12;
+  --pn-amber: #ffd23f;     --pn-amber-soft: #fff3c2;   --pn-amber-strong: #8a6500;
+  --pn-petrol: #2d6a4f;    --pn-petrol-soft: #d9ece2;  --pn-petrol-strong: #1f5a40;
 }
 
 /* ---------- Estructura: menú lateral + contenido ---------- */

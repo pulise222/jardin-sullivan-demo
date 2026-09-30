@@ -127,3 +127,39 @@
 {
   color: #0e3c8b;
 }
+
+/* ======================================================================
+   RESPONSIVE (versión demo)
+   El panel ahora vive dentro del armazón .pn-layout (menú con botón de hamburguesa en celular).
+   Estas reglas hacen que el contenido interno se acomode en pantallas pequeñas.
+   ====================================================================== */
+
+/* El contenido interno se diseñó para letra grande (2rem); en celular la reducimos */
+.acu-panel { padding: 0; font-size: clamp(1.5rem, 1.25rem + 0.5vw, 2rem); }
+.acu-panel h2, .acu-panel h3 { color: var(--pn-ink); }
+
+@media (max-width: 900px) {
+  /* Tarjeta de estudiante: de tres columnas a una sola */
+  .est-card { grid-template-columns: 1fr; }
+  .est-actions { align-items: stretch; }
+  /* Las pestañas internas se deslizan en vez de romper la pantalla */
+  .acu-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .acu-tab { white-space: nowrap; flex: none; }
+  /* Filas de eventos y del perfil pasan a vertical */
+  .event-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .perfil-wrap { flex-direction: column; align-items: flex-start; }
+  .acu-card { padding: 14px; }
+}
+
+@media (max-width: 600px) {
+  .est-info { grid-template-columns: 1fr; }
+  .est-left { flex-direction: column; align-items: flex-start; }
+  /* Botones ocupan todo el ancho para que sean fáciles de tocar */
+  .est-actions .btn-primary, .est-actions .btn-secondary { width: 100%; }
+}
+
+@media (max-width: 920px) {
+  /* Perfil: las dos tarjetas se apilan y el formulario pasa a una columna */
+  .acu-panel .perfil-read, .acu-panel .perfil-form .grid, .acu-panel .perfil-form { grid-template-columns: 1fr !important; }
+  .acu-panel .perfil-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+}
